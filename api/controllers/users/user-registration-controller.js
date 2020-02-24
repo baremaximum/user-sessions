@@ -16,9 +16,7 @@ const userRegistration = async (req, res, next) => {
         res.sendStatus(201);
     } catch (e){
         if(e.name === 'ValidationError'){
-            res.sendStatus(400)
-        } else if(e.code === 11000) {
-            res.status(400).send("username and email must be unique")
+            res.status(400).send(e.message);
         } else {
             console.log(e);
             errorHandler(e);

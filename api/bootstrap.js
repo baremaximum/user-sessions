@@ -47,7 +47,7 @@ module.exports = async (uri, port) => {
         app.enable('trust proxy');
 
         //bootstrap all routes form /routes directory
-        const userRoutes = require('./controllers/routers/user');
+        const userRoutes = require('./controllers/routers/user-router');
         app.use('/users', userRoutes);
         
        

@@ -2,7 +2,7 @@
 
 const bootstrap = require('./test-bootstrap');
 
-const User = require('../db/models/user');
+const User = require('../db/models/user-model');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const { expect } = chai;

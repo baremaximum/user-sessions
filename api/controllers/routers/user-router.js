@@ -6,7 +6,7 @@
  const router = express.Router();
 
  // Import controllers
- const register = require('../users/user-registration');
+ const register = require('../users/user-registration-controller');
 
  // Register new user
  router.post('/register', register )

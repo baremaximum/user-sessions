@@ -3,7 +3,7 @@
  * 
  * @param {UserObject} [userData]: Object containing user data to be saved.
  */
-const User = require('../../db/models/user');
+const User = require('../../db/models/user-model');
 
 const registerUser = async userData => {
     const user = new User(userData);
