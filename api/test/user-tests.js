@@ -82,7 +82,6 @@ describe('Test user registration endpoint', () => {
         const response = await chai.request(app)
         .post('/users/register')
         .send(userData)
-
-    expect(response).to.have.status(400);
+        expect(response).to.have.status(400);
     })
 })

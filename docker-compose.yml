@@ -17,6 +17,8 @@ services:
             - "3000"
         secrets: 
             - db_password
+        volumes: 
+            - "./api:/usr/src/app"
 
     user_db: 
         image: "mongo:latest"

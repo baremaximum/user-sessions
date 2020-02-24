@@ -7,7 +7,7 @@
  */
 'use strict'
 const errorHandler = require('../../error-handler');
-const register = require('../../services/user/register-user');
+const register = require('../../services/user/register-user-service');
 
 const userRegistration = async (req, res, next) => {
     try {
@@ -16,8 +16,10 @@ const userRegistration = async (req, res, next) => {
         res.sendStatus(201);
     } catch (e){
         if(e.name === 'ValidationError'){
-            res.status(400).send(e.message);
+            // Send, but don't log user error
+            res.status(400).json(e);
         } else {
+            //log but don't send server error
             console.log(e);
             errorHandler(e);
             res.sendStatus(500);

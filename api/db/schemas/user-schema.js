@@ -3,6 +3,7 @@
  */
 
 const mongoose = require('mongoose');
+const validation = require('mongoose-beautiful-unique-validation');
 
 //options for user schema.
 const options = {
@@ -13,7 +14,7 @@ const userSchema = new mongoose.Schema({
     username: {
         type: String,
         required: true,
-        unique: true
+        unique: `The username ({VALUE}) is already in use`
     },
     password: {
         type: String,
@@ -24,9 +25,14 @@ const userSchema = new mongoose.Schema({
         //validate email field
         match: [/.+\@.+\..+/, 'Please fill a valid email address'],
         required: true,
-        unique: true
+        unique: `The email address ({VALUE}) is already in use`
     }, 
     registered_on: {type: Date, default: Date.now},
+    
+    activated: {
+        type: Boolean,
+        default: false
+    }
     
 }, options)
 
@@ -38,5 +44,10 @@ userSchema.pre('save', function(next) {
         next();
     }
 })
+
+// Register plugin for validation messages. Replace default message.
+userSchema.plugin(validation, {
+    defaultMessage: "This custom message will be used as the default"
+});
 
 module.exports = userSchema;
