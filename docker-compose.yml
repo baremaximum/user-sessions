@@ -1,10 +1,10 @@
-version: '3.4'
+version: '3.7'
 
 services:
     api: 
         build: './api'
         environment: 
-            DB_URL: "mongodb://user_db/user_sessons"
+            DB_URL: "mongodb://user_db/user_db"
             TEST_DB_URL: "mongodb://user_db/test_db"
             DB_USERNAME: "sessions"
             PORT: 3000
@@ -22,8 +22,9 @@ services:
         image: "mongo:latest"
         environment: # init with authorization requirement
             MONGO_INITDB_ROOT_USERNAME_FILE: /run/secrets/db_username
-            MONGO_INITDB_ROOT_USERNAME_FILE: /run/secrets/db_password 
-        volumes: "./:/data/db" # persist data on host
+            MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/db_password 
+        volumes: 
+            - "./data/db:/data/db" # persist data on host
         logging:
             driver: "json-file"
             options:
@@ -31,10 +32,20 @@ services:
                 max-file: "10"
         ports: 
             - "27017"
-
+        secrets: 
+            - db_username 
+            - db_password
 
     sessions_store: 
         image: "redis:latest"
+        logging:
+                driver: "json-file"
+                options:
+                    max-size: "500K"
+                    max-file: "10"
+        secrets: 
+            - redis_password 
+            - redis_username
                 
 
 secrets: 
@@ -43,6 +54,6 @@ secrets:
     db_password:
         file: .db_password
     redis_username:
-        fild: .redis_username
+        file: .redis_username
     redis_password:
-        redis_password
+        file: .redis_password
