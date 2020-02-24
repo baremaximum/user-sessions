@@ -8,6 +8,9 @@ services:
             TEST_DB_URL: "mongodb://user_db/test_db"
             DB_USERNAME: "sessions"
             PORT: 3000
+            SMTP_USERNAME: ""
+            SMTP_PASSWORD:  ""
+            SMTP_SERVER: ""
         logging:
             driver: "json-file"
             options:
