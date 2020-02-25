@@ -39,7 +39,8 @@ const userSchema = new mongoose.Schema({
         default: false
     },
     activation_token: {
-        type: String
+        type: String,
+        unique: "Activation token has already been used. Try again."
     },
     is_logged_in: {
         type: Boolean,

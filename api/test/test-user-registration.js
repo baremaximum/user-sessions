@@ -15,7 +15,7 @@ const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised)
 chai.use(chaiHttp);
 
-describe('Test user registration endpoint', () => {
+describe('Test user registration endpoint and associated service layer', () => {
     let CONN, app, server;
     before(async () => {
         // Set up a testing version of the application before running tests.
