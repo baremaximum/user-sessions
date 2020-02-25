@@ -20,6 +20,7 @@ services:
             - "3000"
         secrets: 
             - db_password
+            - db_secret # used to sign jwt tokens
         volumes: 
             - "./api:/usr/src/app"
 
@@ -62,3 +63,5 @@ secrets:
         file: .redis_username
     redis_password:
         file: .redis_password
+    db_secret: 
+        file: .db_secret

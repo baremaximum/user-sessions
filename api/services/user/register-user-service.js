@@ -6,11 +6,17 @@
  */
 const User = require('../../db/models/user-model');
 const genHash = require('../../lib/generate-hash');
+const bcrypt = require('bcryptjs');
 
 const registerUser = async userData => {
     let user = new User(userData);
+
+    //create account activation token
     const hash = genHash();
     user.activation_token = hash;
+
+    //encrypt password
+    const encrypted = userData.password
     return await user.save();
 }
 

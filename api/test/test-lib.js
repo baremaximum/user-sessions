@@ -7,6 +7,7 @@ const chai = require('chai');
 const { expect } = chai;
 
 const genHash = require('../lib/generate-hash')
+const encrypt = require('../lib/encrypt');
 
 
 describe('test hash generation function', () => {
@@ -17,5 +18,16 @@ describe('test hash generation function', () => {
         const base64regex = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
         
         expect(base64regex.test(hash)).to.be.true;
+    })
+})
+
+describe('test string encryption function', () => {
+    it('should return an encrypted version of the input string', async () => {
+        const input = "hereisarandomstringfortesting"
+        const hashed = await encrypt(input);
+        
+        // if the strings are different, then that shoudl be enough. We can assume that bcrypt works.
+        expect(hashed).to.be.a('string');
+        expect(hashed).to.not.equal(input);
     })
 })
