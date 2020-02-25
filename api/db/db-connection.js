@@ -14,7 +14,7 @@ const password = secrets.getSecret('db_password')
 module.exports = uri => {
     var options = {
         useNewUrlParser: true,
-        autoIndex: false, 
+        autoIndex: false,
         useUnifiedTopology: true,
         poolSize: 10,
         bufferMaxEntries: 0,

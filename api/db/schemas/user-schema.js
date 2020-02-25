@@ -7,7 +7,7 @@ const validation = require('mongoose-beautiful-unique-validation');
 
 //options for user schema.
 const options = {
-    autoIndex: true
+    autoIndex: true,
 }
 
 const userSchema = new mongoose.Schema({
@@ -20,6 +20,9 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    password_reset_token: {
+        type: String,
+    },
     email: { 
         type: String,
         //validate email field
@@ -27,16 +30,26 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: `The email address ({VALUE}) is already in use`
     }, 
-    registered_on: {type: Date, default: Date.now},
-    
+    registered_on: {
+        type: Date, 
+        default: Date.now
+    },
     activated: {
         type: Boolean,
+        default: false
+    },
+    activation_token: {
+        type: String
+    },
+    is_logged_in: {
+        type: Boolean,
+        required: true,
         default: false
     }
     
 }, options)
 
-// Make read-only field
+// Make registered_on field read-only 
 userSchema.pre('save', function(next) {
     if(this.isModified('registered_on')) {
         throw 'Cannot modify user registration date';

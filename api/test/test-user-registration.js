@@ -1,6 +1,9 @@
+/**
+ * Integration tests for user registration endpoint.
+ */
 'use strict'
 
-const bootstrap = require('./test-bootstrap');
+const bootstrap = require('./setup/test-bootstrap');
 
 const User = require('../db/models/user-model');
 const chai = require('chai');
@@ -61,7 +64,7 @@ describe('Test user registration endpoint', () => {
     it('should respond with 400 error code if email validation fails', async () => {
 
         const userData = {
-            username: 'test_user',
+            username: 'abcd',
             password: 'test_password',
             email: 'abcdefg'
         }
@@ -83,5 +86,24 @@ describe('Test user registration endpoint', () => {
         .post('/users/register')
         .send(userData)
         expect(response).to.have.status(400);
+    })
+
+    it('should save a valid activation token in the activation_token field on the user record', async () => {
+        const userData = {
+            username: 'test_user_2',
+            password: 'test_password',
+            email: 'test_2@test.com'
+        }
+
+        //send request to save user to database
+        const response = await chai.request(app)
+            .post('/users/register')
+            .send(userData);
+
+        // get user from database
+        const user = await User.findOne({username: 'test_user_2'})
+
+        //test that an activation_token string was indeed inserted into the record
+        expect(user.activation_token).to.be.a('string')
     })
 })
