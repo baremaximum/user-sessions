@@ -2,12 +2,13 @@ version: '3.7'
 
 services:
     api: 
-        build: './api'
+        build: "./api"
         environment: 
             DB_URL: "mongodb://user_db/user_db"
             TEST_DB_URL: "mongodb://user_db/test_db"
             DB_USERNAME: "sessions"
             PORT: 3000
+            HOST_URL: "https://test.com" # Change me!
             SMTP_USERNAME: ""
             SMTP_PASSWORD:  ""
             SMTP_SERVER: ""

@@ -7,7 +7,7 @@
 'use strict';
 
 const User = require('../../db/models/user-model');
-const genHash = require('../../lib/generate-hash');
+const genHash = require('../../lib/hash');
 const encrypt = require('../../lib/encrypt');
 
 const registerUser = async userData => {

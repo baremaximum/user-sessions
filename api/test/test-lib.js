@@ -6,8 +6,10 @@
 const chai = require('chai');
 const { expect } = chai;
 
-const genHash = require('../lib/generate-hash')
+const genHash = require('../lib/hash')
 const encrypt = require('../lib/encrypt');
+const activationLink = require('../lib/activation-link');
+
 
 
 describe('test hash generation function', () => {
@@ -29,5 +31,19 @@ describe('test string encryption function', () => {
         // if the strings are different, then that shoudl be enough. We can assume that bcrypt works.
         expect(hashed).to.be.a('string');
         expect(hashed).to.not.equal(input);
+    })
+})
+
+describe('test activation link generator', () => {
+    it('should generate a link to host with email first, token second', () => {
+        const host = process.env.HOST_URL;
+        const expected = `${host}/fff/aaa`
+
+        const email = "fff";
+        const token = "aaa";
+
+        const result = activationLink(email, token)
+
+        expect(result).to.equal(expected);
     })
 })
