@@ -4,20 +4,23 @@
  * 
  * @param {UserObject} [userData]: Object containing user data to be saved.
  */
+'use strict';
+
 const User = require('../../db/models/user-model');
 const genHash = require('../../lib/generate-hash');
-const bcrypt = require('bcryptjs');
+const encrypt = require('../../lib/encrypt');
 
 const registerUser = async userData => {
     let user = new User(userData);
 
     //create account activation token
-    const hash = genHash();
-    user.activation_token = hash;
+    user.activation_token = genHash();
 
     //encrypt password
-    const encrypted = userData.password
-    return await user.save();
+    user.password = await encrypt(userData.password);
+
+    //save new user
+    return user.save();
 }
 
 module.exports = registerUser

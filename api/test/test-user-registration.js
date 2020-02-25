@@ -6,9 +6,13 @@
 const bootstrap = require('./setup/test-bootstrap');
 
 const User = require('../db/models/user-model');
+const register = require('../services/user/register-user-service');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const { expect } = chai;
+const chaiAsPromised = require('chai-as-promised');
+
+chai.use(chaiAsPromised)
 chai.use(chaiHttp);
 
 describe('Test user registration endpoint', () => {
@@ -17,21 +21,23 @@ describe('Test user registration endpoint', () => {
         // Set up a testing version of the application before running tests.
         ({CONN: CONN, app: app, server: server} = await bootstrap());
 
-        // Add an existing user for tests where user already exists
-        const existingUser = {
-            username: 'existing_user',
+        const userData = {
+            username: 'test',
             password: 'existing_password',
             email: 'existing@test.com'
         }
 
-        const user = new User(existingUser)
-        await user.save();
-        
+        register(userData);
+
     })
 
     after(async () => {
         // Delete all users from DB after tests are done running.
-        await CONN.connections[0].collections['users'].drop();
+        await User.deleteMany({})
+        await CONN.connections[0].close();
+        // Close application
+        await server.close();
+        
     })
 
     it('should respond with status 201 when valid registration request is sent', async () => {
@@ -61,31 +67,30 @@ describe('Test user registration endpoint', () => {
         expect(response).to.have.status(400);
     })
 
-    it('should respond with 400 error code if email validation fails', async () => {
+    
+    it('should raise validation error if email invalid', async () => {
 
         const userData = {
-            username: 'abcd',
+            username: "test_2",
             password: 'test_password',
-            email: 'abcdefg'
+            email: 'fffff'
         }
-        const response = await chai.request(app)
-            .post('/users/register')
-            .send(userData)
-
-        expect(response).to.have.status(400);
+        
+        // must return the expect for promise rejections to be properly picked up by mocha
+        return expect(register(userData)).to.eventually.be.rejected
+            .and.be.an.instanceOf(Error)
     })
 
-    it('should return with 400 error code if username is already being used', async () => {
+    it('should raise validation error if username is already being used', async () => {
         const userData = {
             username: 'test',
             password: 'existing_password',
             email: 'existing@test.com'
         }
 
-        const response = await chai.request(app)
-        .post('/users/register')
-        .send(userData)
-        expect(response).to.have.status(400);
+       // must return the expect for promise rejections to be properly picked up by mocha
+       return expect(register(userData)).to.eventually.be.rejected
+       .and.be.an.instanceOf(Error)
     })
 
     it('should save a valid activation token in the activation_token field on the user record', async () => {
@@ -95,15 +100,24 @@ describe('Test user registration endpoint', () => {
             email: 'test_2@test.com'
         }
 
-        //send request to save user to database
-        const response = await chai.request(app)
-            .post('/users/register')
-            .send(userData);
-
-        // get user from database
-        const user = await User.findOne({username: 'test_user_2'})
+        const user = await register(userData);
 
         //test that an activation_token string was indeed inserted into the record
         expect(user.activation_token).to.be.a('string')
+        
     })
+
+
+    it('should save password in encrypted format only', async () => {
+        const userData = {
+            username: 'test_user_3',
+            password: 'test_password',
+            email: 'test_3@test.com'
+        }
+
+        const user = await register(userData);
+        //test that an activation_token string was indeed inserted into the record
+        expect(user.password).to.not.equal("test_password")
+    })
+
 })

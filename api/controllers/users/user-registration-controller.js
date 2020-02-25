@@ -11,8 +11,7 @@ const register = require('../../services/user/register-user-service');
 
 const userRegistration = async (req, res, next) => {
     try {
-        const userData = req.body;
-        await register(userData);
+        await register(req.body);
         res.sendStatus(201);
     } catch (e){
         if(e.name === 'ValidationError'){
