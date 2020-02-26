@@ -15,9 +15,11 @@ module.exports = uri => {
     var options = {
         useNewUrlParser: true,
         autoIndex: false,
+        useCreateIndex: false,
         useUnifiedTopology: true,
         poolSize: 10,
         bufferMaxEntries: 0,
+        useFindAndModify: false,
         user:  process.env.DB_USERNAME,
         pass: password
       };

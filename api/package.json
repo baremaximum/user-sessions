@@ -21,6 +21,7 @@
     "http": "0.0.0",
     "mongoose": "^5.9.1",
     "mongoose-beautiful-unique-validation": "^7.1.1",
+    "mongoose-unique-validator": "^2.0.3",
     "node-mailer": "^0.1.1",
     "node-mongodb-fixtures": "^3.2.2",
     "passport": "^0.4.1",

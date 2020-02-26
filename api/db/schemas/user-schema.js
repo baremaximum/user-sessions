@@ -4,10 +4,11 @@
 
 const mongoose = require('mongoose');
 const validation = require('mongoose-beautiful-unique-validation');
+const unique = require('mongoose-unique-validator');
 
 //options for user schema.
 const options = {
-    autoIndex: true,
+    autoIndex: false,
 }
 
 const userSchema = new mongoose.Schema({
@@ -63,5 +64,8 @@ userSchema.pre('save', function(next) {
 userSchema.plugin(validation, {
     defaultMessage: "This custom message will be used as the default"
 });
+
+// Register unique validator.
+userSchema.plugin(unique);
 
 module.exports = userSchema;
