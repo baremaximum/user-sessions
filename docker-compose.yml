@@ -1,68 +1,32 @@
-version: '3.7'
+version: "3.7"
 
 services:
-    api: 
-        build: "./api"
-        environment: 
-            DB_URL: "mongodb://user_db/user_db"
-            TEST_DB_URL: "mongodb://user_db/test_db"
-            DB_USERNAME: "sessions"
-            PORT: 3000
-            HOST_URL: "https://test.com" # Change me!
-            SMTP_USERNAME: ""
-            SMTP_PASSWORD:  ""
-            SMTP_SERVER: ""
-        logging:
-            driver: "json-file"
-            options:
-                max-size: "2M"
-                max-file: "10"
-        ports:
-            - "3000"
-        secrets: 
-            - db_password
-            - db_secret # used to sign jwt tokens
-        volumes: 
-            - "./api:/usr/src/app"
+  api:
+    image: "usersessions:latest"
+    build: "."
+    environment:
+      NODE_ENV: "development"
+      LOG_LEVEL: "debug"
+    ports:
+      - "3000:3000"
+    command: ["npm", "run", "start"]
+    volumes:
+      - "./dist:./"
 
-    user_db: 
-        image: "mongo:latest"
-        environment: # init with authorization requirement
-            MONGO_INITDB_ROOT_USERNAME_FILE: /run/secrets/db_username
-            MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/db_password 
-        volumes: 
-            - "./data/db:/data/db" # persist data on host
-        logging:
-            driver: "json-file"
-            options:
-                max-size: "500K"
-                max-file: "10"
-        ports: 
-            - "27017"
-        secrets: 
-            - db_username 
-            - db_password
+    secrets:
+      - jwt_secret # used to sign jwt tokens
 
-    sessions_store: 
-        image: "redis:latest"
-        logging:
-                driver: "json-file"
-                options:
-                    max-size: "500K"
-                    max-file: "10"
-        secrets: 
-            - redis_password 
-            - redis_username
-                
+  mongodb:
+    image: mongo:4.2.0
+    ports:
+      - "27017:27017"
+    environment: { AUTH: "no" }
 
-secrets: 
-    db_username: 
-        file: .db_username
-    db_password:
-        file: .db_password
-    redis_username:
-        file: .redis_username
-    redis_password:
-        file: .redis_password
-    db_secret: 
-        file: .db_secret
+  sessions_store:
+    image: "redis:latest"
+
+secrets:
+  jwt_secret:
+    file: .//jwt_secret.txt
+  db_url:
+    file: db_url.txt # Point to mongodb service name defined here
