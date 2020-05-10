@@ -20,6 +20,7 @@ class App {
     constructor() {
         this.server = fastify_1.default({ logger: true });
         this.port = process.env.PORT || "3000";
+        this.host = process.env.HOST || "0.0.0.0";
         this.connection = this.connectDb();
         this.injectDB();
     }
@@ -30,7 +31,7 @@ class App {
         args.forEach((r) => this.server.route(r));
     }
     listen() {
-        this.server.listen(this.port, (err) => {
+        this.server.listen(parseInt(this.port), this.host, (err) => {
             if (err) {
                 this.server.log.error(err);
                 this.server.blipp();
@@ -47,11 +48,12 @@ class App {
         return __awaiter(this, void 0, void 0, function* () {
             const dbUrl = fs_1.default.readFileSync("/run/secrets/db_url");
             let conn;
-            if (typeof dbUrl !== "string") {
-                throw new Error("DB_URL environment variable must be a string");
+            if (typeof dbUrl !== "object") {
+                throw new Error(`DB_URL environment variable must be a string. Got: ${dbUrl}. Type: ${typeof dbUrl}`);
             }
             try {
-                conn = yield mongodb_1.MongoClient.connect(dbUrl, {
+                //Docker stores secrets as objects. Need to convert back to string
+                conn = yield mongodb_1.MongoClient.connect(dbUrl.toString(), {
                     useNewUrlParser: true,
                     keepAlive: true,
                     connectTimeoutMS: 50,

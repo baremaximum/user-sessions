@@ -1,15 +1,18 @@
 FROM node:14.2.0-alpine
 
-RUN mkdir /app
+RUN mkdir -p /app/dist
 
 WORKDIR /app
 
 COPY package.json package.json
 
-COPY ./dist .
+COPY ./dist ./dist
 
-ENV NODE_ENV=production \
-  LOG_LEVEL=error 
+ARG NODE_ENV
+ARG LOG_LEVEL
+
+ENV NODE_ENV=${NODE_ENV} \
+  LOG_LEVEL=${LOG_LEVEL}
 
 RUN apk add --no-cache --virtual .build-deps python g++ make gcc .build-deps curl git pixman-dev cairo-dev pangomm-dev libjpeg-turbo-dev giflib-dev \
   && npm install \
@@ -19,6 +22,5 @@ RUN apk add --no-cache --virtual .build-deps python g++ make gcc .build-deps cur
 USER node
 
 ENTRYPOINT ["/sbin/tini", "--"]
-
 CMD ["node", "index.js"]
 
