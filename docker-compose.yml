@@ -10,7 +10,7 @@ services:
       LOG_LEVEL: "debug"
     ports:
       - "3000:3000"
-    command: ["npm", "run", "start:run"]
+    command: ["npm", "run", "start"]
     volumes:
       - "./dist/:/app/dist"
 

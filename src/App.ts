@@ -8,6 +8,15 @@ import fs from "fs";
 import { HealthCheckRoute } from "./routes/healthcheck.route";
 import { LoginRoute } from "./routes/login.route";
 
+// Allow binding to global
+declare global {
+  namespace NodeJS {
+    interface Global {
+      __jwt_secret__: string;
+    }
+  }
+}
+
 export class App {
   mongo: any;
   server: fastify.FastifyInstance<
@@ -38,8 +47,9 @@ export class App {
       if (err) throw err;
       this.server.blipp();
       this.injectDB();
-      this.server.log.info("Injected DAOs");
-      this.server.log.info(`server listening on ${this.port}`);
+      // Store jwt secret on global object
+      const secret = fs.readFileSync("/run/secrets/jwt_secret").toString();
+      global.__jwt_secret__ = secret;
     });
   }
 
@@ -49,12 +59,6 @@ export class App {
 
   public connectDb(): void {
     const dbUrl = fs.readFileSync("/run/secrets/db_url");
-
-    if (typeof dbUrl !== "object") {
-      throw new Error(
-        `DB_URL environment variable must be a string. Got: ${dbUrl}. Type: ${typeof dbUrl}`
-      );
-    }
 
     //Docker stores secrets as objects. Need to convert back to string
     this.server.register(fastifyMongodb, {

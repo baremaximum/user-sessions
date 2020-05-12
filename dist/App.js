@@ -43,8 +43,9 @@ class App {
                 throw err;
             this.server.blipp();
             this.injectDB();
-            this.server.log.info("Injected DAOs");
-            this.server.log.info(`server listening on ${this.port}`);
+            // Store jwt secret on global object
+            const secret = fs_1.default.readFileSync("/run/secrets/jwt_secret").toString();
+            global.__jwt_secret__ = secret;
         });
     }
     close() {
@@ -54,9 +55,6 @@ class App {
     }
     connectDb() {
         const dbUrl = fs_1.default.readFileSync("/run/secrets/db_url");
-        if (typeof dbUrl !== "object") {
-            throw new Error(`DB_URL environment variable must be a string. Got: ${dbUrl}. Type: ${typeof dbUrl}`);
-        }
         //Docker stores secrets as objects. Need to convert back to string
         this.server.register(fastify_mongodb_1.default, {
             forceClose: true,

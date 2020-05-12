@@ -1,4 +1,5 @@
 import { Collection } from "mongodb";
+import bcryptjs from "bcryptjs";
 
 export interface User {
   email: string;
@@ -22,6 +23,19 @@ export class Users {
       { email: email },
       { projection: { email: 1, password: 1, roles: 1 } }
     );
+  }
+
+  public static async validatePassword(
+    email: string,
+    password: string
+  ): Promise<User | null> {
+    const user = await this.getUser(email);
+
+    if (user && bcryptjs.compare(password, user.password)) {
+      return user;
+    }
+
+    return null;
   }
 
   get collection(): Collection {

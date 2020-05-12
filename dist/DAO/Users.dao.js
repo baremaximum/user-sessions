@@ -8,7 +8,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
 let users;
 // Singleton
 class Users {
@@ -21,6 +25,15 @@ class Users {
     static getUser(email) {
         return __awaiter(this, void 0, void 0, function* () {
             return users.findOne({ email: email }, { projection: { email: 1, password: 1, roles: 1 } });
+        });
+    }
+    static validatePassword(email, password) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const user = yield this.getUser(email);
+            if (user && bcryptjs_1.default.compare(password, user.password)) {
+                return user;
+            }
+            return null;
         });
     }
     get collection() {

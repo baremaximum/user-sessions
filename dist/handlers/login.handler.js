@@ -8,14 +8,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const Users_dao_1 = require("../DAO/Users.dao");
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 function loginHandler(request, response) {
     return __awaiter(this, void 0, void 0, function* () {
-        const user = yield Users_dao_1.Users.getUser(request.body.username);
-        response.send("OK");
-        // if (user && (await bcryptjs.compare(request.body.password, user.password))) {
-        // }
+        const { email, password } = request.body;
+        const user = yield Users_dao_1.Users.validatePassword(email, password);
+        if (user) {
+            const token = jsonwebtoken_1.default.sign(user, global.__jwt_secret__);
+            response.send(token);
+        }
     });
 }
 exports.loginHandler = loginHandler;

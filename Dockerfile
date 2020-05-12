@@ -1,12 +1,15 @@
 FROM node:14.2.0-alpine
 
 RUN mkdir -p /app/dist
+RUN mkdir -p /app/src
 
 WORKDIR /app
 
 COPY package.json package.json
 
 COPY ./dist ./dist
+COPY ./src ./src
+COPY ./tsconfig.json ./tsconfig.json
 
 ARG NODE_ENV
 ARG LOG_LEVEL

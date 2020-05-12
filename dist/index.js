@@ -14,5 +14,6 @@ process.on("unhandledRejection", (error) => {
 const app = new App_1.App();
 app.registerPlugins();
 app.regiserRoutes();
+app.connectDb();
 app.listen();
 //# sourceMappingURL=index.js.map

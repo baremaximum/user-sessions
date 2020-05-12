@@ -16,4 +16,5 @@ const app = new App();
 
 app.registerPlugins();
 app.regiserRoutes();
+app.connectDb();
 app.listen();
