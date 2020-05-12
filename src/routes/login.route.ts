@@ -1,7 +1,7 @@
 import { RouteOptions } from "fastify";
 import { loginHandler } from "../handlers/login.handler";
 
-export const HealthCheckRoute: RouteOptions = {
+export const LoginRoute: RouteOptions = {
   method: "POST",
   logLevel: process.env.LOG_LEVEL,
   url: "/login",

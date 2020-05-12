@@ -1,4 +1,4 @@
-import { Collection, Db } from "mongodb";
+import { Collection } from "mongodb";
 
 export interface User {
   email: string;
@@ -11,9 +11,9 @@ let users: Collection<User>;
 export class Users {
   constructor() {}
 
-  public static injectDB(dbo: Db): void {
+  public static injectDB(collection: Collection): void {
     if (!users) {
-      users = dbo.collection("users");
+      users = collection;
     }
   }
 
@@ -22,5 +22,9 @@ export class Users {
       { email: email },
       { projection: { email: 1, password: 1, roles: 1 } }
     );
+  }
+
+  get collection(): Collection {
+    return users;
   }
 }

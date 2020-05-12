@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const login_handler_1 = require("../handlers/login.handler");
-exports.HealthCheckRoute = {
+exports.LoginRoute = {
     method: "POST",
     logLevel: process.env.LOG_LEVEL,
     url: "/login",

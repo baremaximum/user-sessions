@@ -13,15 +13,18 @@ let users;
 // Singleton
 class Users {
     constructor() { }
-    static injectDB(dbo) {
+    static injectDB(collection) {
         if (!users) {
-            users = dbo.collection("users");
+            users = collection;
         }
     }
     static getUser(email) {
         return __awaiter(this, void 0, void 0, function* () {
             return users.findOne({ email: email }, { projection: { email: 1, password: 1, roles: 1 } });
         });
+    }
+    get collection() {
+        return users;
     }
 }
 exports.Users = Users;

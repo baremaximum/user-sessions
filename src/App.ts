@@ -1,27 +1,24 @@
-import fastify, { Plugin, RouteOptions } from "fastify";
+import fastify from "fastify";
 import { Server, IncomingMessage, ServerResponse } from "http";
 import fastifyBlipp from "fastify-blipp";
 import fastifyHelmet from "fastify-helmet";
-import { MongoClient } from "mongodb";
+import fastifyMongodb from "fastify-mongodb";
 import { Users } from "./DAO/Users.dao";
 import fs from "fs";
 import { HealthCheckRoute } from "./routes/healthcheck.route";
+import { LoginRoute } from "./routes/login.route";
 
 export class App {
-  connection: Promise<MongoClient>;
+  mongo: any;
   server: fastify.FastifyInstance<
     Server,
     IncomingMessage,
     ServerResponse
   > = fastify({ logger: true });
-
   port = process.env.PORT || "3000";
   host = process.env.HOST || "0.0.0.0";
 
-  constructor() {
-    this.connection = this.connectDb();
-    this.injectDB();
-  }
+  constructor() {}
 
   public registerPlugins(): void {
     this.server.register(fastifyBlipp);
@@ -33,24 +30,25 @@ export class App {
 
   public regiserRoutes(): void {
     this.server.route(HealthCheckRoute);
+    this.server.route(LoginRoute);
   }
 
   public listen(): void {
     this.server.listen(parseInt(this.port), this.host, (err) => {
       if (err) throw err;
       this.server.blipp();
-
+      this.injectDB();
+      this.server.log.info("Injected DAOs");
       this.server.log.info(`server listening on ${this.port}`);
     });
   }
 
-  public close(): Promise<void> {
+  public async close(): Promise<void> {
     return this.server.close();
   }
 
-  private async connectDb(): Promise<MongoClient> {
+  public connectDb(): void {
     const dbUrl = fs.readFileSync("/run/secrets/db_url");
-    let conn;
 
     if (typeof dbUrl !== "object") {
       throw new Error(
@@ -58,24 +56,21 @@ export class App {
       );
     }
 
-    try {
-      //Docker stores secrets as objects. Need to convert back to string
-      conn = await MongoClient.connect(dbUrl.toString(), {
-        useNewUrlParser: true,
-        keepAlive: true,
-        connectTimeoutMS: 50,
-        useUnifiedTopology: true,
-      });
-      this.server.log.info("Successfully connected to the database");
-    } catch (e) {
-      throw new Error(`Could not connect to the database. Error: ${e}`);
-    }
-
-    return conn;
+    //Docker stores secrets as objects. Need to convert back to string
+    this.server.register(fastifyMongodb, {
+      forceClose: true,
+      url: dbUrl.toString(),
+      database: "users",
+    });
   }
 
-  private async injectDB(): Promise<void> {
-    const db = (await this.connection).db("users");
-    Users.injectDB(db);
+  public injectDB(): void {
+    const usersColl = this.server.mongo.db?.collection("users");
+
+    if (!usersColl) {
+      throw new Error("Could not retrieve users collection");
+    }
+
+    Users.injectDB(usersColl);
   }
 }

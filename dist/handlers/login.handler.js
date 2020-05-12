@@ -8,18 +8,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const Users_dao_1 = require("../DAO/Users.dao");
-const bcryptjs_1 = __importDefault(require("bcryptjs"));
 function loginHandler(request, response) {
     return __awaiter(this, void 0, void 0, function* () {
         const user = yield Users_dao_1.Users.getUser(request.body.username);
-        if (user && (yield bcryptjs_1.default.compare(request.body.password, user.password))) {
-            response.send("OK");
-        }
+        response.send("OK");
+        // if (user && (await bcryptjs.compare(request.body.password, user.password))) {
+        // }
     });
 }
 exports.loginHandler = loginHandler;

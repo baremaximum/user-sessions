@@ -15,17 +15,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fastify_1 = __importDefault(require("fastify"));
 const fastify_blipp_1 = __importDefault(require("fastify-blipp"));
 const fastify_helmet_1 = __importDefault(require("fastify-helmet"));
-const mongodb_1 = require("mongodb");
+const fastify_mongodb_1 = __importDefault(require("fastify-mongodb"));
 const Users_dao_1 = require("./DAO/Users.dao");
 const fs_1 = __importDefault(require("fs"));
 const healthcheck_route_1 = require("./routes/healthcheck.route");
+const login_route_1 = require("./routes/login.route");
 class App {
     constructor() {
         this.server = fastify_1.default({ logger: true });
         this.port = process.env.PORT || "3000";
         this.host = process.env.HOST || "0.0.0.0";
-        this.connection = this.connectDb();
-        this.injectDB();
     }
     registerPlugins() {
         this.server.register(fastify_blipp_1.default);
@@ -36,46 +35,42 @@ class App {
     }
     regiserRoutes() {
         this.server.route(healthcheck_route_1.HealthCheckRoute);
+        this.server.route(login_route_1.LoginRoute);
     }
     listen() {
         this.server.listen(parseInt(this.port), this.host, (err) => {
             if (err)
                 throw err;
             this.server.blipp();
+            this.injectDB();
+            this.server.log.info("Injected DAOs");
             this.server.log.info(`server listening on ${this.port}`);
         });
     }
     close() {
-        return this.server.close();
+        return __awaiter(this, void 0, void 0, function* () {
+            return this.server.close();
+        });
     }
     connectDb() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const dbUrl = fs_1.default.readFileSync("/run/secrets/db_url");
-            let conn;
-            if (typeof dbUrl !== "object") {
-                throw new Error(`DB_URL environment variable must be a string. Got: ${dbUrl}. Type: ${typeof dbUrl}`);
-            }
-            try {
-                //Docker stores secrets as objects. Need to convert back to string
-                conn = yield mongodb_1.MongoClient.connect(dbUrl.toString(), {
-                    useNewUrlParser: true,
-                    keepAlive: true,
-                    connectTimeoutMS: 50,
-                    useUnifiedTopology: true,
-                });
-                this.server.log.info("Successfully connected to the database");
-            }
-            catch (e) {
-                throw new Error(`Could not connect to the database. Error: ${e}`);
-            }
-            return conn;
+        const dbUrl = fs_1.default.readFileSync("/run/secrets/db_url");
+        if (typeof dbUrl !== "object") {
+            throw new Error(`DB_URL environment variable must be a string. Got: ${dbUrl}. Type: ${typeof dbUrl}`);
+        }
+        //Docker stores secrets as objects. Need to convert back to string
+        this.server.register(fastify_mongodb_1.default, {
+            forceClose: true,
+            url: dbUrl.toString(),
+            database: "users",
         });
     }
     injectDB() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const db = (yield this.connection).db("users");
-            Users_dao_1.Users.injectDB(db);
-        });
+        var _a;
+        const usersColl = (_a = this.server.mongo.db) === null || _a === void 0 ? void 0 : _a.collection("users");
+        if (!usersColl) {
+            throw new Error("Could not retrieve users collection");
+        }
+        Users_dao_1.Users.injectDB(usersColl);
     }
 }
 exports.App = App;
