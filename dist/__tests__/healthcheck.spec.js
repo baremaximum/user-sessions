@@ -10,19 +10,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const App_1 = require("../App");
-const healthcheck_route_1 = require("../routes/healthcheck.route");
 describe("/healthz", () => {
     let app;
     beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
         app = new App_1.App();
-        app.regiserRoutes(healthcheck_route_1.HealthCheckRoute);
+        app.registerPlugins();
+        app.regiserRoutes();
         yield app.server.ready();
     }));
-    beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
-        jest.clearAllMocks();
-    }));
     afterAll(() => __awaiter(void 0, void 0, void 0, function* () {
-        yield app.close();
+        app.server.close();
     }));
     it("GET should return empty response with status 200", (done) => __awaiter(void 0, void 0, void 0, function* () {
         const response = yield app.server.inject({

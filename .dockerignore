@@ -1,2 +1,6 @@
 node_modules/*
 */__tests__/*
+*.log
+tsconfig.json
+Dockerfile
+docker-compose.yml

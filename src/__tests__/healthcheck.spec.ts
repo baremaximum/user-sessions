@@ -1,21 +1,17 @@
 import { App } from "../App";
-import { HealthCheckRoute } from "../routes/healthcheck.route";
 
 describe("/healthz", () => {
   let app: App;
 
   beforeAll(async () => {
     app = new App();
-    app.regiserRoutes(HealthCheckRoute);
+    app.registerPlugins();
+    app.regiserRoutes();
     await app.server.ready();
   });
 
-  beforeEach(async () => {
-    jest.clearAllMocks();
-  });
-
   afterAll(async () => {
-    await app.close();
+    app.server.close();
   });
 
   it("GET should return empty response with status 200", async (done) => {

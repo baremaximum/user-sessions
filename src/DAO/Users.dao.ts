@@ -1,4 +1,4 @@
-import { Collection, Db, Cursor } from "mongodb";
+import { Collection, Db } from "mongodb";
 
 export interface User {
   email: string;
@@ -17,10 +17,10 @@ export class Users {
     }
   }
 
-  public static getUser(email: string): Cursor<User | null> {
-    return users
-      .find({ email: email })
-      .limit(1)
-      .project({ email: 1, password: 1, roles: 1 });
+  public static async getUser(email: string): Promise<User | null> {
+    return users.findOne<User | null>(
+      { email: email },
+      { projection: { email: 1, password: 1, roles: 1 } }
+    );
   }
 }

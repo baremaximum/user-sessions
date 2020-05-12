@@ -1,8 +1,11 @@
 import fastify, { Plugin, RouteOptions } from "fastify";
 import { Server, IncomingMessage, ServerResponse } from "http";
+import fastifyBlipp from "fastify-blipp";
+import fastifyHelmet from "fastify-helmet";
 import { MongoClient } from "mongodb";
 import { Users } from "./DAO/Users.dao";
 import fs from "fs";
+import { HealthCheckRoute } from "./routes/healthcheck.route";
 
 export class App {
   connection: Promise<MongoClient>;
@@ -20,29 +23,28 @@ export class App {
     this.injectDB();
   }
 
-  public registerPlugins(
-    ...args: Plugin<Server, IncomingMessage, ServerResponse, any>[]
-  ): void {
-    args.forEach((p) => this.server.register(p));
+  public registerPlugins(): void {
+    this.server.register(fastifyBlipp);
+    this.server.register(fastifyHelmet, {
+      noCache: true,
+      referrerPolicy: true,
+    });
   }
 
-  public regiserRoutes(...args: RouteOptions[]) {
-    args.forEach((r) => this.server.route(r));
+  public regiserRoutes(): void {
+    this.server.route(HealthCheckRoute);
   }
 
-  public listen() {
+  public listen(): void {
     this.server.listen(parseInt(this.port), this.host, (err) => {
-      if (err) {
-        this.server.log.error(err);
-        this.server.blipp();
-        console.error(err);
-        process.exit(1);
-      }
+      if (err) throw err;
+      this.server.blipp();
+
       this.server.log.info(`server listening on ${this.port}`);
     });
   }
 
-  public close() {
+  public close(): Promise<void> {
     return this.server.close();
   }
 

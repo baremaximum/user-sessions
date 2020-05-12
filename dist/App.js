@@ -13,9 +13,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const fastify_1 = __importDefault(require("fastify"));
+const fastify_blipp_1 = __importDefault(require("fastify-blipp"));
+const fastify_helmet_1 = __importDefault(require("fastify-helmet"));
 const mongodb_1 = require("mongodb");
 const Users_dao_1 = require("./DAO/Users.dao");
 const fs_1 = __importDefault(require("fs"));
+const healthcheck_route_1 = require("./routes/healthcheck.route");
 class App {
     constructor() {
         this.server = fastify_1.default({ logger: true });
@@ -24,20 +27,21 @@ class App {
         this.connection = this.connectDb();
         this.injectDB();
     }
-    registerPlugins(...args) {
-        args.forEach((p) => this.server.register(p));
+    registerPlugins() {
+        this.server.register(fastify_blipp_1.default);
+        this.server.register(fastify_helmet_1.default, {
+            noCache: true,
+            referrerPolicy: true,
+        });
     }
-    regiserRoutes(...args) {
-        args.forEach((r) => this.server.route(r));
+    regiserRoutes() {
+        this.server.route(healthcheck_route_1.HealthCheckRoute);
     }
     listen() {
         this.server.listen(parseInt(this.port), this.host, (err) => {
-            if (err) {
-                this.server.log.error(err);
-                this.server.blipp();
-                console.error(err);
-                process.exit(1);
-            }
+            if (err)
+                throw err;
+            this.server.blipp();
             this.server.log.info(`server listening on ${this.port}`);
         });
     }

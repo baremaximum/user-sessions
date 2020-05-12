@@ -1,5 +1,3 @@
-import fastifyBlipp from "fastify-blipp";
-import { HealthCheckRoute } from "./routes/healthcheck.route";
 import { App } from "./App";
 
 // Restart server on error. Deployment (Docker/Kubernetes)
@@ -16,6 +14,6 @@ process.on("unhandledRejection", (error) => {
 
 const app = new App();
 
-app.registerPlugins(fastifyBlipp);
-app.regiserRoutes(HealthCheckRoute);
+app.registerPlugins();
+app.regiserRoutes();
 app.listen();
