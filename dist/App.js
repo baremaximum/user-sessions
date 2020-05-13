@@ -31,7 +31,9 @@ class App {
         this.host = process.env.HOST || "0.0.0.0";
     }
     registerPlugins() {
+        // blipp
         this.server.register(fastify_blipp_1.default);
+        // cookies
         this.server.register(fastify_cookie_1.default, { secret: global.__session_secret__ });
         // helmet
         this.server.register(fastify_helmet_1.default, {

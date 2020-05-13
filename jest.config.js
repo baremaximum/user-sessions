@@ -1,6 +1,6 @@
 module.exports = {
-    rootDir: "dist/__tests__/",
-    testMatch: ["**/__tests__/*.spec.(ts|tsx|js|jsx)"],
+    rootDir: "__tests__/",
+    testMatch: ["<rootDir>/*.spec.ts"],
     verbose: false,
     clearMocks: true,
     resetModules: true,

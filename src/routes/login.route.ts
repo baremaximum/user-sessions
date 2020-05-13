@@ -9,7 +9,7 @@ export const LoginRoute: RouteOptions = {
   schema: {
     body: {
       type: "object",
-      required: ["username", "password"],
+      required: ["email", "password"],
       properties: {
         username: { type: "string", minLength: 4, maxLength: 100 },
         password: { type: "string", minLength: 8, maxLength: 200 },

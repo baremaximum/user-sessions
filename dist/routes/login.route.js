@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LoginRoute = void 0;
 const login_handler_1 = require("../handlers/login.handler");
 exports.LoginRoute = {
     method: "POST",
@@ -10,7 +9,7 @@ exports.LoginRoute = {
     schema: {
         body: {
             type: "object",
-            required: ["username", "password"],
+            required: ["email", "password"],
             properties: {
                 username: { type: "string", minLength: 4, maxLength: 100 },
                 password: { type: "string", minLength: 8, maxLength: 200 },

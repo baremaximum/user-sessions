@@ -39,7 +39,9 @@ export class App {
   constructor() {}
 
   public registerPlugins(): void {
+    // blipp
     this.server.register(fastifyBlipp);
+    // cookies
     this.server.register(fastifyCookie, { secret: global.__session_secret__ });
     // helmet
     this.server.register(fastifyHelmet, {
@@ -59,15 +61,15 @@ export class App {
       secret: global.__session_secret__,
       cookie: { maxAge: ONE_DAY, domain: process.env.DOMAIN, secure: "auto" },
       store: {
-        set: (sessionId: string, session: string, callback: Function) => {
+        set: (sessionId: string, session: string, callback: Function): void => {
           this.server.redis.set(sessionId, session);
           callback();
         },
-        get: (sessionId: string, callback: Function) => {
+        get: (sessionId: string, callback: Function): void => {
           const session = this.server.redis.get(sessionId);
           callback(undefined, session);
         },
-        destroy: (sessionId: string, callback: Function) => {
+        destroy: (sessionId: string, callback: Function): void => {
           this.server.redis.del(sessionId);
           callback();
         },

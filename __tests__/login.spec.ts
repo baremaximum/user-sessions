@@ -1,5 +1,5 @@
-import { App } from "../App";
-import { Users } from "../DAO/Users.dao";
+import { App } from "../src/App";
+import { Users } from "../src/DAO/Users.dao";
 import bcryptjs from "bcryptjs";
 
 describe("/login", () => {
@@ -16,7 +16,7 @@ describe("/login", () => {
     app.injectDAO();
 
     const testUser = {
-      username: "testuser",
+      email: "testuser",
       password: "testpassword",
       roles: [{ resource: "test", role: "root" }],
     };
@@ -34,7 +34,7 @@ describe("/login", () => {
     const response = await app.server.inject({
       method: "POST",
       url: "/login",
-      payload: { username: "fake", password: "userthatdoesnotexist" },
+      payload: { email: "fake", password: "userthatdoesnotexist" },
     });
     expect(response.statusCode).toEqual(401);
     expect(response.body).toEqual("Unauthorized");
@@ -45,9 +45,10 @@ describe("/login", () => {
     const response = await app.server.inject({
       method: "POST",
       url: "/login",
-      payload: { username: "testuser", password: "testpassword" },
+      payload: { email: "testuser", password: "testpassword" },
     });
     expect(response.cookies.length).toBe(1);
+    console.log(response.cookies[0]);
     done();
   });
 });

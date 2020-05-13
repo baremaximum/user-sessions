@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.HealthCheckRoute = void 0;
 exports.HealthCheckRoute = {
     method: "GET",
     logLevel: process.env.LOG_LEVEL,

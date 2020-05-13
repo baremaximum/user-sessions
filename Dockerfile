@@ -7,8 +7,12 @@ WORKDIR /app
 
 COPY package.json package.json
 
+RUN apk add --no-cache --virtual .build-deps python g++ make gcc .build-deps curl git pixman-dev cairo-dev pangomm-dev libjpeg-turbo-dev giflib-dev \
+  && npm install \
+  && apk add --no-cache tini \
+  && apk del .build-deps 
+
 COPY ./dist ./dist
-COPY ./src ./src
 COPY ./tsconfig.json ./tsconfig.json
 
 ARG NODE_ENV
@@ -16,11 +20,6 @@ ARG LOG_LEVEL
 
 ENV NODE_ENV=${NODE_ENV} \
   LOG_LEVEL=${LOG_LEVEL}
-
-RUN apk add --no-cache --virtual .build-deps python g++ make gcc .build-deps curl git pixman-dev cairo-dev pangomm-dev libjpeg-turbo-dev giflib-dev \
-  && npm install \
-  && apk add --no-cache tini \
-  && apk del .build-deps 
 
 USER node
 
