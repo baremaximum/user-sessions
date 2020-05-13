@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.loginHandler = void 0;
 const Users_dao_1 = require("../DAO/Users.dao");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 function loginHandler(request, response) {
@@ -21,6 +22,9 @@ function loginHandler(request, response) {
         if (user) {
             const token = jsonwebtoken_1.default.sign(user, global.__jwt_secret__);
             response.send(token);
+        }
+        else {
+            response.status(401).send("Unauthorized");
         }
     });
 }

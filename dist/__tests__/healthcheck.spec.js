@@ -14,6 +14,7 @@ describe("/healthz", () => {
     let app;
     beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
         app = new App_1.App();
+        app.getSecrets();
         app.registerPlugins();
         app.regiserRoutes();
         yield app.server.ready();

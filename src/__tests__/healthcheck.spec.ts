@@ -5,6 +5,7 @@ describe("/healthz", () => {
 
   beforeAll(async () => {
     app = new App();
+    app.getSecrets();
     app.registerPlugins();
     app.regiserRoutes();
     await app.server.ready();

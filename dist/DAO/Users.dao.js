@@ -12,19 +12,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Users = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 let users;
 // Singleton
 class Users {
     constructor() { }
-    static injectDB(collection) {
+    static injectDAO(coll) {
         if (!users) {
-            users = collection;
+            users = coll;
         }
     }
     static getUser(email) {
         return __awaiter(this, void 0, void 0, function* () {
-            return users.findOne({ email: email }, { projection: { email: 1, password: 1, roles: 1 } });
+            return yield users.findOne({ email: email }, { projection: { email: 1, password: 1, roles: 1 } });
         });
     }
     static validatePassword(email, password) {
@@ -36,7 +37,7 @@ class Users {
             return null;
         });
     }
-    get collection() {
+    static collection() {
         return users;
     }
 }

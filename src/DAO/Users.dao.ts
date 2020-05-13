@@ -12,14 +12,14 @@ let users: Collection<User>;
 export class Users {
   constructor() {}
 
-  public static injectDB(collection: Collection): void {
+  public static injectDAO(coll: Collection) {
     if (!users) {
-      users = collection;
+      users = coll;
     }
   }
 
   public static async getUser(email: string): Promise<User | null> {
-    return users.findOne<User | null>(
+    return await users.findOne<User | null>(
       { email: email },
       { projection: { email: 1, password: 1, roles: 1 } }
     );
@@ -38,7 +38,7 @@ export class Users {
     return null;
   }
 
-  get collection(): Collection {
+  public static collection(): Collection<Users> {
     return users;
   }
 }

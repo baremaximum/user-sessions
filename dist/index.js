@@ -12,6 +12,7 @@ process.on("unhandledRejection", (error) => {
     process.exit(1);
 });
 const app = new App_1.App();
+app.getSecrets();
 app.registerPlugins();
 app.regiserRoutes();
 app.connectDb();

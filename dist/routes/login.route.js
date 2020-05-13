@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.LoginRoute = void 0;
 const login_handler_1 = require("../handlers/login.handler");
 exports.LoginRoute = {
     method: "POST",

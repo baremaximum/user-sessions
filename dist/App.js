@@ -16,10 +16,14 @@ const fastify_1 = __importDefault(require("fastify"));
 const fastify_blipp_1 = __importDefault(require("fastify-blipp"));
 const fastify_helmet_1 = __importDefault(require("fastify-helmet"));
 const fastify_mongodb_1 = __importDefault(require("fastify-mongodb"));
+const fastify_session_1 = __importDefault(require("fastify-session"));
+const fastify_redis_1 = __importDefault(require("fastify-redis"));
+const fastify_cookie_1 = __importDefault(require("fastify-cookie"));
 const Users_dao_1 = require("./DAO/Users.dao");
-const fs_1 = __importDefault(require("fs"));
 const healthcheck_route_1 = require("./routes/healthcheck.route");
 const login_route_1 = require("./routes/login.route");
+const docker_secret_1 = require("docker-secret");
+const ONE_DAY = 1000 * 60 * 60 * 24;
 class App {
     constructor() {
         this.server = fastify_1.default({ logger: true });
@@ -28,9 +32,38 @@ class App {
     }
     registerPlugins() {
         this.server.register(fastify_blipp_1.default);
+        this.server.register(fastify_cookie_1.default, { secret: global.__session_secret__ });
+        // helmet
         this.server.register(fastify_helmet_1.default, {
             noCache: true,
             referrerPolicy: true,
+        });
+        // redis
+        const redisOpts = {
+            host: "sessions_store",
+            port: 6379,
+            keepAlive: 10,
+            password: docker_secret_1.secrets.redis_password,
+        };
+        this.server.register(fastify_redis_1.default, redisOpts);
+        // // sessions
+        this.server.register(fastify_session_1.default, {
+            secret: global.__session_secret__,
+            cookie: { maxAge: ONE_DAY, domain: process.env.DOMAIN, secure: "auto" },
+            store: {
+                set: (sessionId, session, callback) => {
+                    this.server.redis.set(sessionId, session);
+                    callback();
+                },
+                get: (sessionId, callback) => {
+                    const session = this.server.redis.get(sessionId);
+                    callback(undefined, session);
+                },
+                destroy: (sessionId, callback) => {
+                    this.server.redis.del(sessionId);
+                    callback();
+                },
+            },
         });
     }
     regiserRoutes() {
@@ -42,11 +75,15 @@ class App {
             if (err)
                 throw err;
             this.server.blipp();
-            this.injectDB();
-            // Store jwt secret on global object
-            const secret = fs_1.default.readFileSync("/run/secrets/jwt_secret").toString();
-            global.__jwt_secret__ = secret;
+            this.injectDAO();
         });
+    }
+    // Store secrets in memory at application startup
+    getSecrets() {
+        const { jwt_secret, session_secret, redis_password } = docker_secret_1.secrets;
+        global.__jwt_secret__ = jwt_secret;
+        global.__session_secret__ = session_secret;
+        global.__redis_password__ = redis_password;
     }
     close() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -54,21 +91,20 @@ class App {
         });
     }
     connectDb() {
-        const dbUrl = fs_1.default.readFileSync("/run/secrets/db_url");
         //Docker stores secrets as objects. Need to convert back to string
         this.server.register(fastify_mongodb_1.default, {
             forceClose: true,
-            url: dbUrl.toString(),
+            url: docker_secret_1.secrets.db_url,
             database: "users",
         });
     }
-    injectDB() {
+    injectDAO() {
         var _a;
         const usersColl = (_a = this.server.mongo.db) === null || _a === void 0 ? void 0 : _a.collection("users");
         if (!usersColl) {
             throw new Error("Could not retrieve users collection");
         }
-        Users_dao_1.Users.injectDB(usersColl);
+        Users_dao_1.Users.injectDAO(usersColl);
     }
 }
 exports.App = App;
