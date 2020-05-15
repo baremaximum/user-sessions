@@ -1,3 +1,4 @@
-import { User } from "../DAO/Users.dao";
-
-export interface JwtPayload extends User {}
+export interface JwtPayload {
+  email: string;
+  roles: [{ resource: string; role: string }];
+}

@@ -11,6 +11,9 @@ export const HealthCheckRoute: RouteOptions = {
     },
   },
   handler(request, response) {
+    request.destroySession((err) => {
+      if (err) throw err;
+    });
     response.send();
   },
 };

@@ -19,11 +19,25 @@ function loginHandler(request, response) {
         const { email, password } = request.body;
         const user = yield Users_dao_1.Users.validatePassword(email, password);
         if (user) {
-            const token = jsonwebtoken_1.default.sign(user, global.__jwt_secret__);
-            response.send(token);
+            const payload = {
+                email: user.email,
+                roles: user.roles,
+            };
+            const token = jsonwebtoken_1.default.sign(payload, global.__jwt_secret__);
+            request.session.loggedIn = true;
+            request.session.accessToken = token;
+            response.setCookie("accessToken", token, {
+                domain: process.env.DOMAIN,
+                path: "/",
+            });
+            response.send();
         }
         else {
-            response.status(401).send("Unauthorized");
+            request.destroySession((err) => {
+                if (err)
+                    throw err;
+                response.status(401).send("Unauthorized");
+            });
         }
     });
 }

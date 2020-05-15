@@ -8,7 +8,6 @@ exports.LoginRoute = {
     bodyLimit: 1048576 / 2,
     schema: {
         body: {
-            type: "object",
             required: ["email", "password"],
             properties: {
                 username: { type: "string", minLength: 4, maxLength: 100 },
@@ -17,6 +16,9 @@ exports.LoginRoute = {
         },
         response: {
             200: {
+                type: "null",
+            },
+            401: {
                 type: "string",
             },
         },

@@ -8,7 +8,6 @@ export const LoginRoute: RouteOptions = {
   bodyLimit: 1048576 / 2, // Block any post reqs bigger than half a MB
   schema: {
     body: {
-      type: "object",
       required: ["email", "password"],
       properties: {
         username: { type: "string", minLength: 4, maxLength: 100 },
@@ -17,6 +16,9 @@ export const LoginRoute: RouteOptions = {
     },
     response: {
       200: {
+        type: "null",
+      },
+      401: {
         type: "string",
       },
     },

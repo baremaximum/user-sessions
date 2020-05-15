@@ -12,6 +12,10 @@ exports.HealthCheckRoute = {
         },
     },
     handler(request, response) {
+        request.destroySession((err) => {
+            if (err)
+                throw err;
+        });
         response.send();
     },
 };

@@ -2,6 +2,7 @@ import { ServerResponse } from "http";
 import { Users } from "../DAO/Users.dao";
 import { FastifyRequest, FastifyReply } from "fastify";
 import jsonwebtoken from "jsonwebtoken";
+import { JwtPayload } from "../interfaces/jwtpayload.interface";
 
 export async function loginHandler(
   request: FastifyRequest,
@@ -11,9 +12,22 @@ export async function loginHandler(
   const user = await Users.validatePassword(email, password);
 
   if (user) {
-    const token = jsonwebtoken.sign(user, global.__jwt_secret__);
-    response.send(token);
+    const payload: JwtPayload = {
+      email: user.email,
+      roles: user.roles,
+    };
+    const token = jsonwebtoken.sign(payload, global.__jwt_secret__);
+    request.session.loggedIn = true;
+    request.session.accessToken = token;
+    response.setCookie("accessToken", token, {
+      domain: process.env.DOMAIN,
+      path: "/",
+    });
+    response.send();
   } else {
-    response.status(401).send("Unauthorized");
+    request.destroySession((err) => {
+      if (err) throw err;
+      response.status(401).send("Unauthorized");
+    });
   }
 }

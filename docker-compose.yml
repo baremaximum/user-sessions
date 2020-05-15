@@ -10,7 +10,7 @@ services:
     environment:
       DOMAIN: "0.0.0.0"
     ports:
-      - "3000:3000"
+      - "30000:30000"
     command: ["npm", "run", "start"]
     volumes:
       - "./:/app"
@@ -28,6 +28,8 @@ services:
 
   sessions_store:
     image: "redis:latest"
+    ports:
+      - "6379:6379"
 
 secrets:
   jwt_secret:
