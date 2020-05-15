@@ -105,10 +105,9 @@ class App {
     // Store secrets in memory at application startup.
     // Prevents having to do filesystem calls every time secret is needed.
     getSecrets() {
-        const { jwt_secret, session_secret, redis_password } = docker_secret_1.secrets;
+        const { jwt_secret, session_secret } = docker_secret_1.secrets;
         global.__jwt_secret__ = jwt_secret;
         global.__session_secret__ = session_secret;
-        global.__redis_password__ = redis_password;
     }
     close() {
         return __awaiter(this, void 0, void 0, function* () {

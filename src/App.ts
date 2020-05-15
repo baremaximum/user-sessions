@@ -24,7 +24,6 @@ declare global {
     interface Global {
       __jwt_secret__: string;
       __session_secret__: string;
-      __redis_password__: string;
     }
   }
 }
@@ -114,10 +113,9 @@ export class App {
   // Store secrets in memory at application startup.
   // Prevents having to do filesystem calls every time secret is needed.
   public getSecrets(): void {
-    const { jwt_secret, session_secret, redis_password } = secrets;
+    const { jwt_secret, session_secret } = secrets;
     global.__jwt_secret__ = jwt_secret;
     global.__session_secret__ = session_secret;
-    global.__redis_password__ = redis_password;
   }
 
   public async close(): Promise<void> {
