@@ -4,7 +4,18 @@ RUN mkdir -p /app
 
 WORKDIR /app
 
-ENV NODE_ENV=development
+ARG NODE_ENV=production
+ARG PORT=3000
+ARG DOMAIN=0.0.0.0
+
+ENV NODE_ENV=${NODE_ENV}
+ENV PORT=${PORT}
+
+RUN apk add libcurl
+
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD [ "curl", "localhost:3000/healthz" ]
+
+STOPSIGNAL SIGKILL
 
 COPY . .
 
@@ -12,6 +23,7 @@ RUN apk add --no-cache --virtual .build-deps python g++ make gcc .build-deps cur
   && npm install \
   && apk add --no-cache tini \
   && apk del .build-deps 
+
 
 USER node
 

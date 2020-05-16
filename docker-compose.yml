@@ -20,6 +20,18 @@ services:
       - db_url # Secret to keep username/password out of repo/image
       - session_secret # used to sign session cookies
 
+  test_api:
+    build:
+      context: ./test_api
+      dockerfile: Dockerfile
+    ports:
+      - "30001:30001"
+    command: ["npm", "run", "start"]
+    secrets:
+      - session_secret
+    volumes:
+      - "./test_api/:/app"
+
   mongodb:
     image: mongo:4.2.0
     ports:
