@@ -1,4 +1,5 @@
 import { RouteOptions } from "fastify";
+
 export const HealthCheckRoute: RouteOptions = {
   method: "GET",
   logLevel: process.env.LOG_LEVEL,
@@ -11,6 +12,7 @@ export const HealthCheckRoute: RouteOptions = {
     },
   },
   handler(request, response) {
+    // Destroy healthcheck sessions immediately
     request.destroySession((err) => {
       if (err) throw err;
     });

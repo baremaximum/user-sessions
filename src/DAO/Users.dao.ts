@@ -1,10 +1,18 @@
 import { Collection } from "mongodb";
 import bcryptjs from "bcryptjs";
+import { User } from "../interfaces/User.interface";
 
-export interface User {
-  email: string;
-  password: string;
-  roles: [{ resource: string; role: string }];
+export interface Location {
+  city: string;
+  country: string;
+}
+
+export interface Session {
+  sessionId: string;
+  startedOn: Date;
+  device: string;
+  location: Location;
+  accessToken: string;
 }
 
 let users: Collection<User>;
@@ -29,21 +37,30 @@ export class Users {
     email: string,
     password: string
   ): Promise<User | null> {
-    await users.insertOne({
-      email: "testemail",
-      password: "testpassword",
-      roles: [{ resource: "test", role: "root" }],
-    });
     const user = await this.getUser(email);
 
-    if (user) {
+    if (user && (await bcryptjs.compare(user.password, password))) {
       return user;
     }
 
     return null;
   }
 
-  public static collection(): Collection<Users> {
-    return users;
+  public static async addSession(
+    userId: string,
+    sessionId: string,
+    device: string,
+    city: string,
+    country: string,
+    token: string
+  ): Promise<void> {
+    const session: Session = {
+      sessionId: sessionId,
+      startedOn: new Date(),
+      accessToken: token,
+      device: device,
+      location: { city: city, country: country },
+    };
+    users.updateOne({ userId }, { $push: { activeSessions: session } });
   }
 }

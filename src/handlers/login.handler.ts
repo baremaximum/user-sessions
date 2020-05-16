@@ -17,8 +17,8 @@ export async function loginHandler(
       roles: user.roles,
     };
     const token = jsonwebtoken.sign(payload, global.__jwt_secret__);
-    request.session.loggedIn = true;
     request.session.accessToken = token;
+    Users.addSession(user._id, sessionId: request.session.sessionId, request.city, request.country, token)
     response.setCookie("accessToken", token, {
       domain: process.env.DOMAIN,
       path: "/",

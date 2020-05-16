@@ -34,7 +34,7 @@ export class App {
     IncomingMessage,
     ServerResponse
   > = fastify({ logger: true });
-  port = process.env.PORT || "30000";
+  port = process.env.PORT || "3000";
   host = process.env.HOST || "0.0.0.0";
 
   constructor() {}
