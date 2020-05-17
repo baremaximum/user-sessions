@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const Users_dao_1 = require("../DAO/Users.dao");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const App_1 = require("../App");
 function loginHandler(request, response) {
     return __awaiter(this, void 0, void 0, function* () {
         const { email, password } = request.body;
@@ -29,6 +30,7 @@ function loginHandler(request, response) {
             response.setCookie("accessToken", token, {
                 domain: process.env.DOMAIN,
                 path: "/",
+                maxAge: App_1.ONE_DAY,
             });
             response.send();
         }

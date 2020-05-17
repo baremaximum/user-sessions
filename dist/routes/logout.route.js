@@ -10,6 +10,9 @@ exports.LogoutRoute = {
             200: {
                 type: "string",
             },
+            400: {
+                type: "string",
+            },
         },
     },
     handler: logout_handler_1.logoutHandler,

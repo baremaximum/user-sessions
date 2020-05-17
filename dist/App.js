@@ -28,7 +28,7 @@ const Users_dao_1 = require("./DAO/Users.dao");
 const healthcheck_route_1 = require("./routes/healthcheck.route");
 const login_route_1 = require("./routes/login.route");
 const logout_route_1 = require("./routes/logout.route");
-const ONE_DAY = 1000 * 60 * 60 * 24; // in milliseconds
+exports.ONE_DAY = 1000 * 60 * 60 * 24; // in milliseconds
 class App {
     constructor() {
         this.server = fastify_1.default({ logger: true });
@@ -69,7 +69,7 @@ class App {
         // sessions
         this.server.register(fastify_session_1.default, {
             secret: global.__session_secret__,
-            cookie: { maxAge: ONE_DAY, domain: process.env.DOMAIN, secure: "auto" },
+            cookie: { maxAge: exports.ONE_DAY, domain: process.env.DOMAIN, secure: "auto" },
             store: {
                 set: (sessionId, session, callback) => {
                     this.server.redis.set(sessionId, JSON.stringify(session));
@@ -78,7 +78,7 @@ class App {
                 get: (sessionId, callback) => __awaiter(this, void 0, void 0, function* () {
                     const session = yield this.server.redis.get(sessionId);
                     if (!(typeof session === "string")) {
-                        callback(`Could not find session with id ${sessionId}`, null);
+                        callback(`Could not find session`, null);
                     }
                     else {
                         callback(null, JSON.parse(session));

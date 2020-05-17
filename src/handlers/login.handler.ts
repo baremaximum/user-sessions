@@ -3,6 +3,7 @@ import { Users } from "../DAO/Users.dao";
 import { FastifyRequest, FastifyReply } from "fastify";
 import jsonwebtoken from "jsonwebtoken";
 import { JwtPayload } from "../interfaces/JwtPayload.interface";
+import { ONE_DAY } from "../App";
 
 export async function loginHandler(
   request: FastifyRequest,
@@ -22,6 +23,7 @@ export async function loginHandler(
     response.setCookie("accessToken", token, {
       domain: process.env.DOMAIN,
       path: "/",
+      maxAge: ONE_DAY,
     });
     response.send();
   } else {

@@ -17,7 +17,7 @@ import { HealthCheckRoute } from "./routes/healthcheck.route";
 import { LoginRoute } from "./routes/login.route";
 import { LogoutRoute } from "./routes/logout.route";
 
-const ONE_DAY = 1000 * 60 * 60 * 24; // in milliseconds
+export const ONE_DAY = 1000 * 60 * 60 * 24; // in milliseconds
 
 // Allow binding to global
 declare global {
@@ -85,7 +85,7 @@ export class App {
         get: async (sessionId: string, callback: Function): Promise<void> => {
           const session = await this.server.redis.get(sessionId);
           if (!(typeof session === "string")) {
-            callback(`Could not find session with id ${sessionId}`, null);
+            callback(`Could not find session`, null);
           } else {
             callback(null, JSON.parse(session));
           }

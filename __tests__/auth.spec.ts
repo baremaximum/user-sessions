@@ -2,10 +2,16 @@ import { App } from "../src/App";
 import { Users } from "../src/DAO/Users.dao";
 import bcryptjs from "bcryptjs";
 import { Collection } from "mongodb";
+import { HTTPInjectOptions } from "fastify";
 
 describe("/login and /logout", () => {
   let app: App;
   let collection: Collection;
+  const loginReq: HTTPInjectOptions = {
+    method: "POST",
+    url: "/login",
+    payload: { email: "testuser", password: "testpassword" },
+  };
 
   beforeAll(async () => {
     // Setup application
@@ -23,21 +29,18 @@ describe("/login and /logout", () => {
     const salt = await bcryptjs.genSalt();
     testUser.password = await bcryptjs.hash(testUser.password, salt);
     // Insert a test user
-    const usr = await collection.insertOne(testUser);
+    await collection.insertOne(testUser);
   });
 
-  afterAll(async () => {
-    await collection.drop();
+  afterAll(() => {
+    // collection.drop();
     app.server.redis.flushall();
     app.server.close();
   });
 
   it("should set session cookie if user does exist", async (done) => {
-    const response = await app.server.inject({
-      method: "POST",
-      url: "/login",
-      payload: { email: "testuser", password: "testpassword" },
-    });
+    const response = await app.server.inject(loginReq);
+    expect(response.statusCode).toEqual(200);
     expect(response.cookies.length).toBe(2);
     done();
   });
@@ -51,6 +54,23 @@ describe("/login and /logout", () => {
     expect(response.statusCode).toEqual(401);
     expect(response.body).toEqual("Unauthorized");
     expect(response.cookies.length).toBe(0);
+    done();
+  });
+
+  it("Should return 'Logged out' with statusCode 200 on successful logout", async (done) => {
+    const response = await app.server.inject(loginReq);
+    const cookie: any = response.cookies[1];
+    const logoutReq: HTTPInjectOptions = {
+      method: "DELETE",
+      url: "/logout",
+      cookies: { sessionId: cookie.value },
+    };
+    const logoutResponse = await app.server.inject(logoutReq);
+    expect(logoutResponse.statusCode).toEqual(200);
+    expect(logoutResponse.body).toEqual("Logged out");
+    logoutResponse.cookies.forEach((cookie: any) => {
+      expect(cookie.expires < new Date()).toBe(true);
+    });
     done();
   });
 });
