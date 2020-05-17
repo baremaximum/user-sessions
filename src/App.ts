@@ -15,6 +15,7 @@ import { Users } from "./DAO/Users.dao";
 // Routes
 import { HealthCheckRoute } from "./routes/healthcheck.route";
 import { LoginRoute } from "./routes/login.route";
+import { LogoutRoute } from "./routes/logout.route";
 
 const ONE_DAY = 1000 * 60 * 60 * 24; // in milliseconds
 
@@ -100,6 +101,7 @@ export class App {
   public regiserRoutes(): void {
     this.server.route(HealthCheckRoute);
     this.server.route(LoginRoute);
+    this.server.route(LogoutRoute);
   }
 
   public listen(): void {

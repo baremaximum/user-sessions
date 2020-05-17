@@ -2,7 +2,7 @@ import { ServerResponse } from "http";
 import { Users } from "../DAO/Users.dao";
 import { FastifyRequest, FastifyReply } from "fastify";
 import jsonwebtoken from "jsonwebtoken";
-import { JwtPayload } from "../interfaces/jwtpayload.interface";
+import { JwtPayload } from "../interfaces/JwtPayload.interface";
 
 export async function loginHandler(
   request: FastifyRequest,
@@ -18,7 +18,7 @@ export async function loginHandler(
     };
     const token = jsonwebtoken.sign(payload, global.__jwt_secret__);
     request.session.accessToken = token;
-    Users.addSession(user._id, sessionId: request.session.sessionId, request.city, request.country, token)
+    await Users.addSession(user._id, request.session.sessionId, token);
     response.setCookie("accessToken", token, {
       domain: process.env.DOMAIN,
       path: "/",
