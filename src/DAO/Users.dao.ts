@@ -27,7 +27,7 @@ export class Users {
   ): Promise<User | null> {
     const user = await this.getUser(email);
 
-    if (user && (await bcryptjs.compare(user.password, password))) {
+    if (user && (await bcryptjs.compare(password, user.password))) {
       return user;
     }
 
@@ -55,5 +55,9 @@ export class Users {
       { email: email },
       { $pull: { activeSessions: sessionId } }
     );
+  }
+
+  public static collection(): Collection {
+    return users;
   }
 }

@@ -1,9 +1,11 @@
 import { App } from "../src/App";
 import { Users } from "../src/DAO/Users.dao";
 import bcryptjs from "bcryptjs";
+import { Collection } from "mongodb";
 
-describe("/login", () => {
+describe("/login and /logout", () => {
   let app: App;
+  let collection: Collection;
 
   beforeAll(async () => {
     // Setup application
@@ -11,7 +13,7 @@ describe("/login", () => {
     app.setup();
     await app.server.ready();
     app.injectDAO();
-    app.server.redis.flushall();
+    collection = Users.collection();
 
     const testUser = {
       email: "testuser",
@@ -21,10 +23,11 @@ describe("/login", () => {
     const salt = await bcryptjs.genSalt();
     testUser.password = await bcryptjs.hash(testUser.password, salt);
     // Insert a test user
-    Users.collection().insertOne(testUser);
+    const usr = await collection.insertOne(testUser);
   });
 
   afterAll(async () => {
+    await collection.drop();
     app.server.redis.flushall();
     app.server.close();
   });

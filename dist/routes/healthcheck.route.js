@@ -12,6 +12,7 @@ exports.HealthCheckRoute = {
         },
     },
     handler(request, response) {
+        // Destroy healthcheck sessions immediately
         request.destroySession((err) => {
             if (err)
                 throw err;

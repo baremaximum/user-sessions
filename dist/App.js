@@ -27,11 +27,12 @@ const Users_dao_1 = require("./DAO/Users.dao");
 // Routes
 const healthcheck_route_1 = require("./routes/healthcheck.route");
 const login_route_1 = require("./routes/login.route");
+const logout_route_1 = require("./routes/logout.route");
 const ONE_DAY = 1000 * 60 * 60 * 24; // in milliseconds
 class App {
     constructor() {
         this.server = fastify_1.default({ logger: true });
-        this.port = process.env.PORT || "30000";
+        this.port = process.env.PORT || "3000";
         this.host = process.env.HOST || "0.0.0.0";
     }
     setup() {
@@ -93,6 +94,7 @@ class App {
     regiserRoutes() {
         this.server.route(healthcheck_route_1.HealthCheckRoute);
         this.server.route(login_route_1.LoginRoute);
+        this.server.route(logout_route_1.LogoutRoute);
     }
     listen() {
         this.server.listen(parseInt(this.port), "0.0.0.0", (err) => {

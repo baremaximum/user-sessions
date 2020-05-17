@@ -24,8 +24,8 @@ function loginHandler(request, response) {
                 roles: user.roles,
             };
             const token = jsonwebtoken_1.default.sign(payload, global.__jwt_secret__);
-            request.session.loggedIn = true;
             request.session.accessToken = token;
+            yield Users_dao_1.Users.addSession(user._id, request.session.sessionId, token);
             response.setCookie("accessToken", token, {
                 domain: process.env.DOMAIN,
                 path: "/",

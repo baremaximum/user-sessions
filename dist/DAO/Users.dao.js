@@ -8,7 +8,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
 let users;
 // Singleton
 class Users {
@@ -25,16 +29,26 @@ class Users {
     }
     static validatePassword(email, password) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield users.insertOne({
-                email: "testemail",
-                password: "testpassword",
-                roles: [{ resource: "test", role: "root" }],
-            });
             const user = yield this.getUser(email);
-            if (user) {
+            if (user && (yield bcryptjs_1.default.compare(password, user.password))) {
                 return user;
             }
             return null;
+        });
+    }
+    static addSession(userId, sessionId, token) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const session = {
+                sessionId: sessionId,
+                startedOn: new Date(),
+                accessToken: token,
+            };
+            yield users.updateOne({ userId }, { $push: { activeSessions: session } });
+        });
+    }
+    static removeSession(email, sessionId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield users.updateOne({ email: email }, { $pull: { activeSessions: sessionId } });
         });
     }
     static collection() {
