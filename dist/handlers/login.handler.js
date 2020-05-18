@@ -26,7 +26,13 @@ function loginHandler(request, response) {
             };
             const token = jsonwebtoken_1.default.sign(payload, global.__jwt_secret__);
             request.session.accessToken = token;
-            yield Users_dao_1.Users.addSession(user._id, request.session.sessionId, token);
+            try {
+                yield Users_dao_1.Users.addSession(user._id, request.session.sessionId, token);
+            }
+            catch (e) {
+                console.error(e);
+                throw new Error("Could not add session to user");
+            }
             response.setCookie("accessToken", token, {
                 domain: process.env.DOMAIN,
                 path: "/",

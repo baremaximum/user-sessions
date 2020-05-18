@@ -2,7 +2,7 @@ import { App } from "../src/App";
 import { Users } from "../src/DAO/Users.dao";
 import bcryptjs from "bcryptjs";
 import { Collection } from "mongodb";
-import { HTTPInjectOptions } from "fastify";
+import { HTTPInjectOptions, HTTPInjectResponse } from "fastify";
 
 describe("/login and /logout", () => {
   let app: App;
@@ -34,8 +34,8 @@ describe("/login and /logout", () => {
 
   afterAll(() => {
     // collection.drop();
-    app.server.redis.flushall();
-    app.server.close();
+    // app.server.redis.flushall();
+    // app.server.close();
   });
 
   it("should set session cookie if user does exist", async (done) => {
@@ -57,20 +57,55 @@ describe("/login and /logout", () => {
     done();
   });
 
-  it("Should return 'Logged out' with statusCode 200 on successful logout", async (done) => {
-    const response = await app.server.inject(loginReq);
-    const cookie: any = response.cookies[1];
-    const logoutReq: HTTPInjectOptions = {
-      method: "DELETE",
-      url: "/logout",
-      cookies: { sessionId: cookie.value },
-    };
-    const logoutResponse = await app.server.inject(logoutReq);
-    expect(logoutResponse.statusCode).toEqual(200);
-    expect(logoutResponse.body).toEqual("Logged out");
-    logoutResponse.cookies.forEach((cookie: any) => {
-      expect(cookie.expires < new Date()).toBe(true);
+  describe("tests that require a logged in user", () => {
+    let loginResponse: HTTPInjectResponse;
+    let cookie: any;
+    let logoutReq: HTTPInjectOptions;
+
+    beforeEach(async () => {
+      loginResponse = await app.server.inject(loginReq);
+      cookie = loginResponse.cookies[1];
+      logoutReq = {
+        method: "DELETE",
+        url: "/logout",
+        cookies: { sessionId: cookie.value },
+      };
     });
-    done();
+
+    it("Should return 'Logged out' with statusCode 200 on successful logout", async (done) => {
+      const logoutResponse = await app.server.inject(logoutReq);
+      expect(logoutResponse.statusCode).toEqual(200);
+      expect(logoutResponse.body).toEqual("Logged out");
+      logoutResponse.cookies.forEach((cookie: any) => {
+        expect(cookie.expires < new Date()).toBe(true);
+      });
+      await app.server.inject(logoutReq);
+      done();
+    });
+
+    it("Should have added current session to user's active sesions in DB", async (done) => {
+      const res = await app.server.mongo.db?.collection("users").findOne({
+        email: "testuser",
+        activeSessions: { $size: 1 },
+      });
+      expect(res).not.toBeFalsy();
+      await app.server.inject(logoutReq);
+      done();
+    });
+
+    it("should remove all active sessions from user on logout", async (done) => {
+      const res = await app.server.mongo.db?.collection("users").findOne({
+        email: "testuser",
+        activeSessions: { $size: 1 },
+      });
+      expect(res).not.toBeFalsy();
+      const logout = await app.server.inject(logoutReq);
+      const logoutRes = await app.server.mongo.db?.collection("users").findOne({
+        email: "testuser",
+        activeSessions: { $size: 1 },
+      });
+      expect(logoutRes).toBeFalsy();
+      done();
+    });
   });
 });

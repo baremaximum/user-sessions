@@ -1,4 +1,4 @@
-import { Collection } from "mongodb";
+import { Collection, UpdateWriteOpResult } from "mongodb";
 import bcryptjs from "bcryptjs";
 import { User } from "../interfaces/User.interface";
 import { Session } from "../interfaces/Session.interface";
@@ -38,23 +38,23 @@ export class Users {
     userId: string,
     sessionId: string,
     token: string
-  ): Promise<void> {
+  ): Promise<UpdateWriteOpResult> {
     const session: Session = {
       sessionId: sessionId,
       startedOn: new Date(),
       accessToken: token,
     };
-    await users.updateOne({ userId }, { $push: { activeSessions: session } });
+    return users.updateOne(
+      { _id: userId },
+      { $push: { activeSessions: session } }
+    );
   }
 
-  public static async removeSession(
+  public static async removeSessions(
     email: string,
     sessionId: string
-  ): Promise<void> {
-    await users.updateOne(
-      { email: email },
-      { $pull: { activeSessions: sessionId } }
-    );
+  ): Promise<UpdateWriteOpResult> {
+    return users.updateOne({ email: email }, { $set: { activeSessions: [] } });
   }
 
   public static collection(): Collection {

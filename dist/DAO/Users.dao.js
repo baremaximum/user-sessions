@@ -43,12 +43,12 @@ class Users {
                 startedOn: new Date(),
                 accessToken: token,
             };
-            yield users.updateOne({ userId }, { $push: { activeSessions: session } });
+            return users.updateOne({ _id: userId }, { $push: { activeSessions: session } });
         });
     }
-    static removeSession(email, sessionId) {
+    static removeSessions(email, sessionId) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield users.updateOne({ email: email }, { $pull: { activeSessions: sessionId } });
+            return users.updateOne({ email: email }, { $set: { activeSessions: [] } });
         });
     }
     static collection() {

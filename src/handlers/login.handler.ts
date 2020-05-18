@@ -19,7 +19,14 @@ export async function loginHandler(
     };
     const token = jsonwebtoken.sign(payload, global.__jwt_secret__);
     request.session.accessToken = token;
-    await Users.addSession(user._id, request.session.sessionId, token);
+
+    try {
+      await Users.addSession(user._id, request.session.sessionId, token);
+    } catch (e) {
+      console.error(e);
+      throw new Error("Could not add session to user");
+    }
+
     response.setCookie("accessToken", token, {
       domain: process.env.DOMAIN,
       path: "/",
