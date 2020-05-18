@@ -17,6 +17,7 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 function logoutHandler(request, response) {
     return __awaiter(this, void 0, void 0, function* () {
         let token;
+        // Check that token is valid. If not, return an error;
         try {
             token = jsonwebtoken_1.default.verify(request.session.accessToken, global.__jwt_secret__);
         }
@@ -25,6 +26,7 @@ function logoutHandler(request, response) {
             response.status(400).send("Invalid token.");
             return;
         }
+        // Remove session from user document in DB. Return error if this fails.
         try {
             yield Users_dao_1.Users.removeSessions(token.email, request.session.sessionId);
         }
@@ -33,11 +35,13 @@ function logoutHandler(request, response) {
             response.status(500).send("Server error");
             return;
         }
+        // Destroy session in redis store. Return error if this fails.
         request.destroySession((err) => {
             if (err) {
                 console.error(`An error occurred while destroying user session: Error: ${err}`);
                 response.status(500).send("Server error");
             }
+            // Clear all cookies and return confirmation of success.
             response.clearCookie("sessionId");
             response.clearCookie("accessToken");
             response.status(200).send("Logged out");

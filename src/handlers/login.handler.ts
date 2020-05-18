@@ -10,21 +10,29 @@ export async function loginHandler(
   response: FastifyReply<ServerResponse>
 ): Promise<void> {
   const { email, password } = request.body;
+  // Returns user object if password is valid
   const user = await Users.validatePassword(email, password);
-
+  // If user is found and password is valid.
   if (user) {
     const payload: JwtPayload = {
       email: user.email,
       roles: user.roles,
     };
+
+    // Attach JWT token to session to give access to user permission data on client side.
     const token = jsonwebtoken.sign(payload, global.__jwt_secret__);
     request.session.accessToken = token;
-
+    // Add session data to user document in database.
+    // Abort sign in and return error if this fails.
     try {
       await Users.addSession(user._id, request.session.sessionId, token);
-    } catch (e) {
-      console.error(e);
-      throw new Error("Could not add session to user");
+    } catch (err) {
+      console.error(`Could not add session to user. Error: ${err}`);
+      request.destroySession((err) => {
+        if (err) throw err;
+      });
+      response.status(500).send("Server error");
+      return;
     }
 
     response.setCookie("accessToken", token, {
@@ -34,6 +42,7 @@ export async function loginHandler(
     });
     response.send();
   } else {
+    // Else destroy session and return error.
     request.destroySession((err) => {
       if (err) throw err;
       response.status(401).send("Unauthorized");

@@ -18,20 +18,30 @@ const App_1 = require("../App");
 function loginHandler(request, response) {
     return __awaiter(this, void 0, void 0, function* () {
         const { email, password } = request.body;
+        // Returns user object if password is valid
         const user = yield Users_dao_1.Users.validatePassword(email, password);
+        // If user is found and password is valid.
         if (user) {
             const payload = {
                 email: user.email,
                 roles: user.roles,
             };
+            // Attach JWT token to session to give access to user permission data on client side.
             const token = jsonwebtoken_1.default.sign(payload, global.__jwt_secret__);
             request.session.accessToken = token;
+            // Add session data to user document in database.
+            // Abort sign in and return error if this fails.
             try {
                 yield Users_dao_1.Users.addSession(user._id, request.session.sessionId, token);
             }
-            catch (e) {
-                console.error(e);
-                throw new Error("Could not add session to user");
+            catch (err) {
+                console.error(`Could not add session to user. Error: ${err}`);
+                request.destroySession((err) => {
+                    if (err)
+                        throw err;
+                });
+                response.status(500).send("Server error");
+                return;
             }
             response.setCookie("accessToken", token, {
                 domain: process.env.DOMAIN,
@@ -41,6 +51,7 @@ function loginHandler(request, response) {
             response.send();
         }
         else {
+            // Else destroy session and return error.
             request.destroySession((err) => {
                 if (err)
                     throw err;
