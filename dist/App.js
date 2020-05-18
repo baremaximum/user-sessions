@@ -36,9 +36,27 @@ class App {
         this.host = process.env.HOST || "0.0.0.0";
     }
     setup() {
-        this.getSecrets();
-        this.registerPlugins();
-        this.regiserRoutes();
+        try {
+            this.getSecrets();
+        }
+        catch (err) {
+            console.error(`Could not retrieve secrets. Error: ${err}`);
+            process.exit(1);
+        }
+        try {
+            this.registerPlugins();
+        }
+        catch (err) {
+            console.error(`Could not register plugins. Error: ${err}`);
+            process.exit(1);
+        }
+        try {
+            this.regiserRoutes();
+        }
+        catch (err) {
+            console.error(`Could not register routes. Error: ${err}`);
+            process.exit(1);
+        }
     }
     registerPlugins() {
         // form body
@@ -76,6 +94,7 @@ class App {
                     callback();
                 },
                 get: (sessionId, callback) => __awaiter(this, void 0, void 0, function* () {
+                    // Handles cases where logout requests are sent with already deleted sessions.
                     const session = yield this.server.redis.get(sessionId);
                     if (!(typeof session === "string")) {
                         callback(`Could not find session`, null);
@@ -97,7 +116,7 @@ class App {
         this.server.route(logout_route_1.LogoutRoute);
     }
     listen() {
-        this.server.listen(parseInt(this.port), "0.0.0.0", (err) => {
+        this.server.listen(parseInt(this.port), this.host, (err) => {
             if (err)
                 throw err;
             this.server.blipp();
@@ -117,6 +136,7 @@ class App {
         });
     }
     injectDAO() {
+        // This typeguard is just to please typescript compiler.
         if (!this.server.mongo.db)
             throw new Error("No database connection");
         const usersColl = this.server.mongo.db.collection("users");

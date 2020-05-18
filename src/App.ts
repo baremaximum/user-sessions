@@ -41,9 +41,26 @@ export class App {
   constructor() {}
 
   public setup(): void {
-    this.getSecrets();
-    this.registerPlugins();
-    this.regiserRoutes();
+    try {
+      this.getSecrets();
+    } catch (err) {
+      console.error(`Could not retrieve secrets. Error: ${err}`);
+      process.exit(1);
+    }
+
+    try {
+      this.registerPlugins();
+    } catch (err) {
+      console.error(`Could not register plugins. Error: ${err}`);
+      process.exit(1);
+    }
+
+    try {
+      this.regiserRoutes();
+    } catch (err) {
+      console.error(`Could not register routes. Error: ${err}`);
+      process.exit(1);
+    }
   }
 
   public registerPlugins(): void {
@@ -64,7 +81,6 @@ export class App {
       url: secrets.db_url,
       database: "users",
     });
-
     // redis
     const redisOpts: RedisOptions = {
       host: "sessions_store",
@@ -83,6 +99,7 @@ export class App {
           callback();
         },
         get: async (sessionId: string, callback: Function): Promise<void> => {
+          // Handles cases where logout requests are sent with already deleted sessions.
           const session = await this.server.redis.get(sessionId);
           if (!(typeof session === "string")) {
             callback(`Could not find session`, null);
@@ -105,7 +122,7 @@ export class App {
   }
 
   public listen(): void {
-    this.server.listen(parseInt(this.port), "0.0.0.0", (err) => {
+    this.server.listen(parseInt(this.port), this.host, (err) => {
       if (err) throw err;
       this.server.blipp();
       this.injectDAO();
@@ -125,6 +142,7 @@ export class App {
   }
 
   public injectDAO(): void {
+    // This typeguard is just to please typescript compiler.
     if (!this.server.mongo.db) throw new Error("No database connection");
     const usersColl = this.server.mongo.db.collection("users");
     Users.injectDAO(usersColl);

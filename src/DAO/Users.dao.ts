@@ -4,7 +4,7 @@ import { User } from "../interfaces/User.interface";
 import { Session } from "../interfaces/Session.interface";
 
 let users: Collection<User>;
-// Singleton
+
 export class Users {
   constructor() {}
 

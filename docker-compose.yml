@@ -9,6 +9,7 @@ services:
         - LOG_LEVEL=debug
     environment:
       DOMAIN: "0.0.0.0"
+      HOST: "0.0.0.0"
     ports:
       - "3000:3000"
     command: ["npm", "run", "start"]
