@@ -33,9 +33,9 @@ describe("/login and /logout", () => {
   });
 
   afterAll(() => {
-    // collection.drop();
-    // app.server.redis.flushall();
-    // app.server.close();
+    collection.drop();
+    app.server.redis.flushall();
+    app.server.close();
   });
 
   it("should set session cookie if user does exist", async (done) => {
