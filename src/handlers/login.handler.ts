@@ -10,9 +10,9 @@ export async function loginHandler(
   response: FastifyReply<ServerResponse>
 ): Promise<void> {
   const { email, password } = request.body;
-  // Returns user object if password is valid
+  // Returns user object if password is valid. Else is null
   const user = await Users.validatePassword(email, password);
-  // If user is found and password is valid.
+
   if (user) {
     const payload: JwtPayload = {
       email: user.email,

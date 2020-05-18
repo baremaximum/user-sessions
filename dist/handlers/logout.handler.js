@@ -28,7 +28,7 @@ function logoutHandler(request, response) {
         }
         // Remove session from user document in DB. Return error if this fails.
         try {
-            yield Users_dao_1.Users.removeSessions(token.email, request.session.sessionId);
+            yield Users_dao_1.Users.removeSessions(token.email);
         }
         catch (err) {
             console.error(`Could not remove session from user. Error: ${err}`);

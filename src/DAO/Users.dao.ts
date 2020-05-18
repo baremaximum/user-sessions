@@ -51,8 +51,7 @@ export class Users {
   }
 
   public static async removeSessions(
-    email: string,
-    sessionId: string
+    email: string
   ): Promise<UpdateWriteOpResult> {
     return users.updateOne({ email: email }, { $set: { activeSessions: [] } });
   }

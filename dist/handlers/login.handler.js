@@ -18,9 +18,8 @@ const App_1 = require("../App");
 function loginHandler(request, response) {
     return __awaiter(this, void 0, void 0, function* () {
         const { email, password } = request.body;
-        // Returns user object if password is valid
+        // Returns user object if password is valid. Else is null
         const user = yield Users_dao_1.Users.validatePassword(email, password);
-        // If user is found and password is valid.
         if (user) {
             const payload = {
                 email: user.email,

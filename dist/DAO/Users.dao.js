@@ -46,7 +46,7 @@ class Users {
             return users.updateOne({ _id: userId }, { $push: { activeSessions: session } });
         });
     }
-    static removeSessions(email, sessionId) {
+    static removeSessions(email) {
         return __awaiter(this, void 0, void 0, function* () {
             return users.updateOne({ email: email }, { $set: { activeSessions: [] } });
         });

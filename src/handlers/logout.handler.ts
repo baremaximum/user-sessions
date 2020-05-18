@@ -21,7 +21,7 @@ export async function logoutHandler(
   }
   // Remove session from user document in DB. Return error if this fails.
   try {
-    await Users.removeSessions(token.email, request.session.sessionId);
+    await Users.removeSessions(token.email);
   } catch (err) {
     console.error(`Could not remove session from user. Error: ${err}`);
     response.status(500).send("Server error");
