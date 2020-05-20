@@ -12,7 +12,11 @@ This api has 2 endpoints:
 
 ### Login
 
-Two required fields: email, password.
+Two required fields for login:
+
+- email
+- password.
+
 Data must be sent in x-www-form-urlencoded format.
 
 ### Logout
@@ -38,12 +42,12 @@ Example valid user document:
 
 ### Session Store
 
-Sessions are stored in Redis. Redis service must be called 'sessions_store' in docker/kubernetes network.
+Sessions are stored in Redis. Redis connection url passed as environment variable.
+Redis password is passed as docker secret.
 
 ### Reverse Proxy
 
-Api only accepts requests from a single whitelisted ip.
-Reverse proxy must be a docker servie named 'reverse_proxy'.
+Api is only accessible via reverse proxy. Reverse proxy is forwards requests to port 3001 on the host.
 
 ### Docker build arguments
 
@@ -53,6 +57,7 @@ Requires the following build args:
 - DOMAIN
 - NODE_ENV
 - LOG_LEVEL
+- REDIS_URL
 
 ### Docker Secrets
 

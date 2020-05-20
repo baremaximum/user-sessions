@@ -31,7 +31,11 @@ const logout_route_1 = require("./routes/logout.route");
 exports.ONE_DAY = 1000 * 60 * 60 * 24; // in milliseconds
 class App {
     constructor() {
-        this.server = fastify_1.default({ logger: true });
+        this.server = fastify_1.default({
+            logger: { level: process.env.LOG_LEVEL },
+            trustProxy: 1,
+            caseSensitive: true,
+        });
         this.port = process.env.PORT || "3000";
         this.host = process.env.HOST || "0.0.0.0";
     }
@@ -40,21 +44,21 @@ class App {
             this.getSecrets();
         }
         catch (err) {
-            console.error(`Could not retrieve secrets. Error: ${err}`);
+            this.server.log.error(`Could not retrieve secrets. Error: ${err}`);
             process.exit(1);
         }
         try {
             this.registerPlugins();
         }
         catch (err) {
-            console.error(`Could not register plugins. Error: ${err}`);
+            this.server.log.error(`Could not register plugins. Error: ${err}`);
             process.exit(1);
         }
         try {
             this.regiserRoutes();
         }
         catch (err) {
-            console.error(`Could not register routes. Error: ${err}`);
+            this.server.log.error(`Could not register routes. Error: ${err}`);
             process.exit(1);
         }
     }
@@ -78,7 +82,7 @@ class App {
         });
         // redis
         const redisOpts = {
-            host: "sessions_store",
+            host: process.env.REDIS_URL,
             port: 6379,
             keepAlive: 10,
             password: docker_secret_1.secrets.redis_password,

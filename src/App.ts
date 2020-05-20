@@ -34,7 +34,11 @@ export class App {
     Server,
     IncomingMessage,
     ServerResponse
-  > = fastify({ logger: true });
+  > = fastify({
+    logger: { level: process.env.LOG_LEVEL },
+    trustProxy: 1,
+    caseSensitive: true,
+  });
   port = process.env.PORT || "3000";
   host = process.env.HOST || "0.0.0.0";
 
@@ -44,21 +48,21 @@ export class App {
     try {
       this.getSecrets();
     } catch (err) {
-      console.error(`Could not retrieve secrets. Error: ${err}`);
+      this.server.log.error(`Could not retrieve secrets. Error: ${err}`);
       process.exit(1);
     }
 
     try {
       this.registerPlugins();
     } catch (err) {
-      console.error(`Could not register plugins. Error: ${err}`);
+      this.server.log.error(`Could not register plugins. Error: ${err}`);
       process.exit(1);
     }
 
     try {
       this.regiserRoutes();
     } catch (err) {
-      console.error(`Could not register routes. Error: ${err}`);
+      this.server.log.error(`Could not register routes. Error: ${err}`);
       process.exit(1);
     }
   }
@@ -83,7 +87,7 @@ export class App {
     });
     // redis
     const redisOpts: RedisOptions = {
-      host: "sessions_store",
+      host: process.env.REDIS_URL,
       port: 6379,
       keepAlive: 10,
       password: secrets.redis_password,

@@ -10,8 +10,9 @@ services:
     environment:
       DOMAIN: "0.0.0.0"
       HOST: "0.0.0.0"
-    ports:
-      - "3000:3000"
+      REDIS_URL: "sessions_store"
+    expose:
+      - "3000"
     command: ["npm", "run", "start"]
     volumes:
       - "./:/app"
@@ -19,6 +20,12 @@ services:
       - jwt_secret # used to sign jwt tokens
       - db_url # Secret to keep username/password out of repo/image
       - session_secret # used to sign session cookies
+
+  reverse_proxy:
+    build:
+      context: ./reverse_proxy
+    ports:
+      - "3001:80"
 
   mongodb:
     image: mongo:4.2.0

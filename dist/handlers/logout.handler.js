@@ -14,9 +14,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const Users_dao_1 = require("../DAO/Users.dao");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-function logoutHandler(request, response) {
+function logoutHandler(// Typescript can't recognize attributes added by plugins.
+request, response) {
     return __awaiter(this, void 0, void 0, function* () {
         let token;
+        // Have to use any because of issue with Mongodb types.
+        let userDoc;
         // Check that token is valid. If not, return an error;
         try {
             token = jsonwebtoken_1.default.verify(request.session.accessToken, global.__jwt_secret__);
@@ -26,19 +29,32 @@ function logoutHandler(request, response) {
             response.status(400).send("Invalid token.");
             return;
         }
-        // Remove session from user document in DB. Return error if this fails.
+        // Remove session from user document in DB.
         try {
-            yield Users_dao_1.Users.removeSessions(token.email);
+            userDoc = yield Users_dao_1.Users.removeSessions(token.email);
         }
         catch (err) {
             console.error(`Could not remove session from user. Error: ${err}`);
             response.status(500).send("Server error");
             return;
         }
-        // Destroy session in redis store. Return error if this fails.
+        // Destroy sessions other than the one attached to the current request
+        try {
+            userDoc.value.activeSessions.forEach((session) => {
+                if (session.sessionId !== request.session.sessionId) {
+                    this.redis.del(session.sessionId);
+                }
+            });
+        }
+        catch (err) {
+            console.error(`Could not delete additional sessions. Error: ${err}`);
+            response.status(500).send("Server error");
+            return;
+        }
+        // Destroy current session in redis store.
         request.destroySession((err) => {
             if (err) {
-                console.error(`An error occurred while destroying user session: Error: ${err}`);
+                console.error(`Could not destroy current user session: Error: ${err}`);
                 response.status(500).send("Server error");
             }
             // Clear all cookies and return confirmation of success.

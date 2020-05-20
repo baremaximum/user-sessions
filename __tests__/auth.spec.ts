@@ -3,6 +3,7 @@ import { Users } from "../src/DAO/Users.dao";
 import bcryptjs from "bcryptjs";
 import { Collection } from "mongodb";
 import { HTTPInjectOptions, HTTPInjectResponse } from "fastify";
+import { User } from "../src/interfaces/User.interface";
 
 describe("/login and /logout", () => {
   let app: App;
@@ -61,6 +62,7 @@ describe("/login and /logout", () => {
     let loginResponse: HTTPInjectResponse;
     let cookie: any;
     let logoutReq: HTTPInjectOptions;
+    let logoutRes: any;
 
     beforeEach(async () => {
       loginResponse = await app.server.inject(loginReq);
@@ -94,15 +96,19 @@ describe("/login and /logout", () => {
     });
 
     it("should remove all active sessions from user on logout", async (done) => {
+      //start a second session with the same user
+      await app.server.inject(loginReq);
+      // Test to see if both sessions have been saved in DB.
       const res = await app.server.mongo.db?.collection("users").findOne({
         email: "testuser",
-        activeSessions: { $size: 1 },
+        activeSessions: { $size: 2 },
       });
       expect(res).not.toBeFalsy();
       const logout = await app.server.inject(logoutReq);
+      // Test to see if both sessions have been deleted from DB.
       const logoutRes = await app.server.mongo.db?.collection("users").findOne({
         email: "testuser",
-        activeSessions: { $size: 1 },
+        $where: "this.activeSessions.length>0",
       });
       expect(logoutRes).toBeFalsy();
       done();
