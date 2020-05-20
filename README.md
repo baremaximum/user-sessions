@@ -48,6 +48,8 @@ Redis password is passed as docker secret.
 ### Reverse Proxy
 
 Api is only accessible via reverse proxy. Reverse proxy is forwards requests to port 3001 on the host.
+Reverse proxy only accepts https connections. For dev, create self signed certs and place
+them in 'reverse_proxy' directory. Files must be named 'cert.pem', and 'key.pem'.
 
 ### Docker build arguments
 
