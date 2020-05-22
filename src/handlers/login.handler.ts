@@ -12,7 +12,7 @@ export async function loginHandler(
   const { email, password } = request.body;
   // Returns user object if password is valid. Else is null
   const user = await Users.validatePassword(email, password);
-  // If user cannot be found, or pasword is invalid.
+
   if (!user) {
     request.destroySession((err) => {
       if (err) throw err;
