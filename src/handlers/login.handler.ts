@@ -12,8 +12,13 @@ export async function loginHandler(
   const { email, password } = request.body;
   // Returns user object if password is valid. Else is null
   const user = await Users.validatePassword(email, password);
-
-  if (user) {
+  // If user cannot be found, or pasword is invalid.
+  if (!user) {
+    request.destroySession((err) => {
+      if (err) throw err;
+      response.status(401).send("Unauthorized");
+    });
+  } else {
     const payload: JwtPayload = {
       email: user.email,
       roles: user.roles,
@@ -41,11 +46,5 @@ export async function loginHandler(
       maxAge: ONE_DAY,
     });
     response.send();
-  } else {
-    // Else destroy session and return error.
-    request.destroySession((err) => {
-      if (err) throw err;
-      response.status(401).send("Unauthorized");
-    });
   }
 }
