@@ -13,6 +13,9 @@ export const LogoutRoute: RouteOptions = {
       400: {
         type: "string",
       },
+      500: {
+        type: "string",
+      },
     },
   },
   handler: logoutHandler,

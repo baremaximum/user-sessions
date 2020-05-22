@@ -21,6 +21,9 @@ export const LoginRoute: RouteOptions = {
       401: {
         type: "string",
       },
+      500: {
+        type: "string",
+      },
     },
   },
   handler: loginHandler,
