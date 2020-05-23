@@ -58,13 +58,7 @@ export class App {
       this.server.log.error(`Could not register plugins. Error: ${err}`);
       process.exit(1);
     }
-
-    try {
-      this.regiserRoutes();
-    } catch (err) {
-      this.server.log.error(`Could not register routes. Error: ${err}`);
-      process.exit(1);
-    }
+    this.regiserRoutes();
   }
 
   public registerPlugins(): void {
