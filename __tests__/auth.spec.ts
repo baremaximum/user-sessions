@@ -3,7 +3,6 @@ import { Users } from "../src/DAO/Users.dao";
 import bcryptjs from "bcryptjs";
 import { Collection } from "mongodb";
 import { HTTPInjectOptions, HTTPInjectResponse } from "fastify";
-import { User } from "../src/interfaces/User.interface";
 
 describe("/login and /logout", () => {
   let app = new App();
