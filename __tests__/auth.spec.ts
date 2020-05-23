@@ -6,7 +6,7 @@ import { HTTPInjectOptions, HTTPInjectResponse } from "fastify";
 import { User } from "../src/interfaces/User.interface";
 
 describe("/login and /logout", () => {
-  let app: App;
+  let app = new App();
   let collection: Collection;
   const loginReq: HTTPInjectOptions = {
     method: "POST",
@@ -16,7 +16,6 @@ describe("/login and /logout", () => {
 
   beforeAll(async () => {
     // Setup application
-    app = new App();
     app.setup();
     await app.server.ready();
     app.injectDAO();
