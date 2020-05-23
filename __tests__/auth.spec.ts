@@ -62,7 +62,6 @@ describe("/login and /logout", () => {
     let loginResponse: HTTPInjectResponse;
     let cookie: any;
     let logoutReq: HTTPInjectOptions;
-    let logoutRes: any;
 
     beforeEach(async () => {
       loginResponse = await app.server.inject(loginReq);
@@ -104,7 +103,7 @@ describe("/login and /logout", () => {
         activeSessions: { $size: 2 },
       });
       expect(res).not.toBeFalsy();
-      const logout = await app.server.inject(logoutReq);
+      await app.server.inject(logoutReq);
       // Test to see if both sessions have been deleted from DB.
       const logoutRes = await app.server.mongo.db?.collection("users").findOne({
         email: "testuser",
